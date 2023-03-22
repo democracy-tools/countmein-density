@@ -12,10 +12,10 @@ import (
 )
 
 type Observation struct {
-	Time    int64   `datastore:"time"`
-	User    string  `datastore:"user"`
-	Polygon string  `datastore:"polygon"`
-	Density float32 `datastore:"density"`
+	Time    int64   `json:"time" datastore:"time"`
+	User    string  `json:"user" datastore:"user"`
+	Polygon string  `json:"polygon" datastore:"polygon"`
+	Density float32 `json:"density" datastore:"density"`
 }
 
 type Handle struct{ client ds.Client }
