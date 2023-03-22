@@ -34,6 +34,7 @@ func (h *Handle) CreateObservation(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	observation.Time = time.Now().Unix()
 	if !validateObservation(&observation) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
