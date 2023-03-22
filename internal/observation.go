@@ -1,7 +1,9 @@
 package internal
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"regexp"
 	"time"
@@ -57,8 +59,47 @@ func (h *Handle) GetObservations(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]interface{}{"observations": observations})
+	observations = lastObservation(observations)
+	if r.URL.Query().Get("Accept") == "application/json" {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{"observations": observations})
+	} else {
+		w.Header().Set("Content-Type", "text/plain")
+		json.NewEncoder(w).Encode(getObservationAsText(observations))
+	}
+}
+
+func lastObservation(observations []Observation) []Observation {
+
+	userToLastObservation := make(map[string]*Observation)
+	for _, currObservation := range observations {
+		curr, ok := userToLastObservation[currObservation.User]
+		if !ok || curr.Time > currObservation.Time {
+			userToLastObservation[currObservation.User] = &currObservation
+		}
+	}
+
+	return toObservationSlice(userToLastObservation)
+}
+
+func toObservationSlice(userToLastObservation map[string]*Observation) []Observation {
+
+	var res []Observation
+	for _, currObservation := range userToLastObservation {
+		res = append(res, *currObservation)
+	}
+
+	return res
+}
+
+func getObservationAsText(observations []Observation) string {
+
+	var buf bytes.Buffer
+	for _, currObservation := range observations {
+		buf.WriteString(fmt.Sprintf("Polygon: %s, Density %.1f\n", currObservation.Polygon, currObservation.Density))
+	}
+
+	return buf.String()
 }
 
 func validateObservation(observation *Observation) bool {
