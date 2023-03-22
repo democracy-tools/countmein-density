@@ -30,7 +30,7 @@ func IsNoSuchEntityError(err error) bool {
 }
 
 type Client interface {
-	GetAll(kind Kind, order string, dst interface{}) error
+	GetByTime(kind Kind, from int64, dst interface{}) error
 	Put(kind Kind, id string, src interface{}) error
 }
 
@@ -38,7 +38,7 @@ type ClientWrapper struct {
 	ds *datastore.Client
 }
 
-func NewClientWrapper(gcpProjectID string) Client {
+func NewClientWrapper(project string) Client {
 
 	if key := env.GetEnvSensitive(EnvKeyDatastoreToken); key != "" {
 		conf, err := google.JWTConfigFromJSON([]byte(key), datastore.ScopeDatastore)
@@ -54,7 +54,7 @@ func NewClientWrapper(gcpProjectID string) Client {
 			opt = append(opt, option.WithEndpoint(dataStoreEndPoint))
 		}
 
-		client, err := datastore.NewClient(ctx, gcpProjectID, opt...)
+		client, err := datastore.NewClient(ctx, project, opt...)
 		if err != nil {
 			log.Fatalf("failed to create datastore client with '%v'", err)
 		}
@@ -62,7 +62,7 @@ func NewClientWrapper(gcpProjectID string) Client {
 		return &ClientWrapper{ds: client}
 	}
 
-	client, err := datastore.NewClient(context.Background(), gcpProjectID)
+	client, err := datastore.NewClient(context.Background(), project)
 	if err != nil {
 		log.Fatalf("failed to create datastore client without token with '%v'", err)
 	}
@@ -70,15 +70,12 @@ func NewClientWrapper(gcpProjectID string) Client {
 	return &ClientWrapper{ds: client}
 }
 
-func (c *ClientWrapper) GetAll(kind Kind, order string, dst interface{}) error {
+func (c *ClientWrapper) GetByTime(kind Kind, from int64, dst interface{}) error {
 
-	q := datastore.NewQuery(string(kind)).Namespace(namespace)
-	if order != "" {
-		q = q.Order(order)
-	}
+	q := datastore.NewQuery(string(kind)).FilterField("time", ">", from).Order("time").Namespace(namespace)
 	_, err := c.ds.GetAll(context.Background(), q, dst)
 	if err != nil {
-		msg := fmt.Sprintf("failed to get all '%s' from datastore namespace '%s' with '%v'", kind, namespace, err)
+		msg := fmt.Sprintf("failed to get '%s' by time from datastore namespace '%s' with '%v'", kind, namespace, err)
 		if IsNoSuchEntityError(err) {
 			log.Info(msg)
 		} else {

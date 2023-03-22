@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/democracy-tools/countmein-density/internal"
+	"github.com/democracy-tools/countmein-density/internal/ds"
+	"github.com/democracy-tools/countmein-density/internal/env"
 	"github.com/gorilla/mux"
 	"github.com/onrik/logrus/filename"
 	log "github.com/sirupsen/logrus"
@@ -21,11 +23,12 @@ import (
 func main() {
 
 	const observations = "/observations"
+	handle := internal.NewHandle(ds.NewClientWrapper(env.Project))
 	serve(
 		[]string{observations, observations, observations},
 		[]string{http.MethodPost, http.MethodGet, http.MethodOptions},
 		[]func(http.ResponseWriter, *http.Request){
-			access(internal.CreateObservation), access(internal.GetObservations),
+			access(handle.CreateObservation), access(handle.GetObservations),
 			options([]string{http.MethodPost, http.MethodGet})},
 	)
 }

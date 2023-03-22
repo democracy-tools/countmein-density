@@ -7,7 +7,7 @@ func NewInMemoryClient() Client {
 	return &InMemoryClient{}
 }
 
-func (c *InMemoryClient) GetAll(kind Kind, order string, dst interface{}) error {
+func (c *InMemoryClient) GetByTime(kind Kind, from int64, dst interface{}) error {
 
 	return nil
 }
