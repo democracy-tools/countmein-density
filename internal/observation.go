@@ -50,7 +50,7 @@ func (h *Handle) CreateObservation(w http.ResponseWriter, r *http.Request) {
 func (h *Handle) GetObservations(w http.ResponseWriter, r *http.Request) {
 
 	var observations []Observation
-	err := h.client.GetByTime(ds.KindObservation, time.Now().Unix(), &observations)
+	err := h.client.GetByTime(ds.KindObservation, time.Now().Add(time.Hour*(-3)).Unix(), &observations)
 	if err != nil {
 		log.Errorf("failed to get observations by time with '%v'", err)
 		w.WriteHeader(http.StatusInternalServerError)
