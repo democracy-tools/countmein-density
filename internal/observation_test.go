@@ -32,3 +32,14 @@ func TestHandle_CreateObservation(t *testing.T) {
 
 	require.Equal(t, http.StatusCreated, w.Result().StatusCode)
 }
+
+func TestHandle_GetObservations(t *testing.T) {
+
+	r, err := http.NewRequest(http.MethodGet, "/observations", nil)
+	require.NoError(t, err)
+	w := httptest.NewRecorder()
+
+	internal.NewHandle(ds.NewInMemoryClient()).GetObservations(w, r)
+
+	require.Equal(t, http.StatusOK, w.Result().StatusCode)
+}
