@@ -65,7 +65,7 @@ func (h *Handle) GetObservations(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]interface{}{"observations": observations})
 	} else {
 		w.Header().Set("Content-Type", "text/plain")
-		json.NewEncoder(w).Encode(getObservationAsText(observations))
+		w.Write([]byte(getObservationAsText(observations)))
 	}
 }
 
