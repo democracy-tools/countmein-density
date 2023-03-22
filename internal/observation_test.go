@@ -24,7 +24,7 @@ func TestHandle_CreateObservation(t *testing.T) {
 			Density: 1.5,
 		}))
 
-	r, err := http.NewRequest(http.MethodGet, "/announcements", bytes.NewReader(buf.Bytes()))
+	r, err := http.NewRequest(http.MethodPost, "/observations", bytes.NewReader(buf.Bytes()))
 	require.NoError(t, err)
 	w := httptest.NewRecorder()
 
