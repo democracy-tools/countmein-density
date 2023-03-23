@@ -37,9 +37,37 @@ func TestHandle_GetObservations(t *testing.T) {
 
 	r, err := http.NewRequest(http.MethodGet, "/observations", nil)
 	require.NoError(t, err)
+	r.Header.Add("Accept", "application/json")
 	w := httptest.NewRecorder()
 
-	internal.NewHandle(ds.NewInMemoryClient()).GetObservations(w, r)
+	client := ds.NewInMemoryClient().(*ds.InMemoryClient)
+	now := time.Now().Unix()
+	client.SetGetByTimeDst([]internal.Observation{
+		{
+			Time:    now - 10,
+			User:    "israel",
+			Polygon: "A8",
+			Density: 1.5,
+		},
+		{
+			Time:    now,
+			User:    "israel",
+			Polygon: "A8",
+			Density: 2,
+		},
+		{
+			Time:    now - 5,
+			User:    "israel",
+			Polygon: "A8",
+			Density: 5,
+		},
+	})
+
+	internal.NewHandle(client).GetObservations(w, r)
 
 	require.Equal(t, http.StatusOK, w.Result().StatusCode)
+	var res map[string][]internal.Observation
+	require.NoError(t, json.NewDecoder(w.Result().Body).Decode(&res))
+	require.Len(t, res["observations"], 1)
+	require.Equal(t, float32(2), res["observations"][0].Density)
 }

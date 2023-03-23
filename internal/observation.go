@@ -59,8 +59,8 @@ func (h *Handle) GetObservations(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	observations = lastObservation(observations)
-	if r.URL.Query().Get("Accept") == "application/json" {
+	observations = latestObservations(observations)
+	if r.Header.Get("Accept") == "application/json" {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{"observations": observations})
 	} else {
@@ -69,24 +69,24 @@ func (h *Handle) GetObservations(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func lastObservation(observations []Observation) []Observation {
+func latestObservations(observations []Observation) []Observation {
 
-	userToLastObservation := make(map[string]*Observation)
+	userToLastObservation := make(map[string]Observation)
 	for _, currObservation := range observations {
-		curr, ok := userToLastObservation[currObservation.User]
-		if !ok || curr.Time > currObservation.Time {
-			userToLastObservation[currObservation.User] = &currObservation
+		latest, ok := userToLastObservation[currObservation.User]
+		if !ok || latest.Time < currObservation.Time {
+			userToLastObservation[currObservation.User] = currObservation
 		}
 	}
 
 	return toObservationSlice(userToLastObservation)
 }
 
-func toObservationSlice(userToLastObservation map[string]*Observation) []Observation {
+func toObservationSlice(userToLastObservation map[string]Observation) []Observation {
 
 	var res []Observation
 	for _, currObservation := range userToLastObservation {
-		res = append(res, *currObservation)
+		res = append(res, currObservation)
 	}
 
 	return res
@@ -96,7 +96,7 @@ func getObservationAsText(observations []Observation) string {
 
 	var buf bytes.Buffer
 	for _, currObservation := range observations {
-		buf.WriteString(fmt.Sprintf("Polygon: %s, Density %.1f\n", currObservation.Polygon, currObservation.Density))
+		buf.WriteString(fmt.Sprintf("%s, Polygon: %s, Density %.1f\n", currObservation.User, currObservation.Polygon, currObservation.Density))
 	}
 
 	return buf.String()
