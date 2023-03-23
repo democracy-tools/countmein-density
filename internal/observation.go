@@ -14,10 +14,12 @@ import (
 )
 
 type Observation struct {
-	Time    int64   `json:"time" datastore:"time"`
-	User    string  `json:"user" datastore:"user"`
-	Polygon string  `json:"polygon" datastore:"polygon"`
-	Density float32 `json:"density" datastore:"density"`
+	Time      int64   `json:"time" datastore:"time"`
+	User      string  `json:"user" datastore:"user"`
+	Polygon   string  `json:"polygon" datastore:"polygon"`
+	Density   float32 `json:"density" datastore:"density"`
+	Latitude  float32 `json:"latitude" datastore:"latitude"`
+	Longitude float32 `json:"longitude" datastore:"longitude"`
 }
 
 type Handle struct{ client ds.Client }
@@ -127,6 +129,16 @@ func validateObservation(observation *Observation) bool {
 
 	if observation.Density < 0 && observation.Density > 9 {
 		log.Infof("invalid observation density '%f' user '%s'", observation.Density, observation.User)
+		return false
+	}
+
+	if observation.Latitude < 0 && observation.Latitude > 40 {
+		log.Infof("invalid observation latitude '%f' user '%s'", observation.Latitude, observation.User)
+		return false
+	}
+
+	if observation.Longitude < 0 && observation.Longitude > 40 {
+		log.Infof("invalid observation longitude '%f' user '%s'", observation.Longitude, observation.User)
 		return false
 	}
 
