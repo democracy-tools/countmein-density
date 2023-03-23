@@ -15,9 +15,10 @@ import (
 type Kind string
 
 const (
-	KindObservation      Kind = "observation"
-	EnvKeyDatastoreToken      = "DATASTORE_KEY"
-	namespace                 = "dev"
+	KindObservation Kind = "observation"
+
+	EnvKeyDatastoreToken = "DATASTORE_KEY"
+	namespace            = "dev"
 )
 
 func IsNoSuchEntityError(err error) bool {

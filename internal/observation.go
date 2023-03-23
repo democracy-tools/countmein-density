@@ -96,7 +96,7 @@ func getObservationAsText(observations []Observation) string {
 
 	var buf bytes.Buffer
 	for _, currObservation := range observations {
-		buf.WriteString(fmt.Sprintf("%s, Polygon: %s, Density %.1f\n", currObservation.User, currObservation.Polygon, currObservation.Density))
+		buf.WriteString(fmt.Sprintf("Polygon: %s, Density %.1f\n", currObservation.Polygon, currObservation.Density))
 	}
 
 	return buf.String()
