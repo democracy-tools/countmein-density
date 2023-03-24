@@ -75,9 +75,9 @@ func latestObservations(observations []Observation) []Observation {
 
 	userToLastObservation := make(map[string]Observation)
 	for _, currObservation := range observations {
-		latest, ok := userToLastObservation[currObservation.User]
+		latest, ok := userToLastObservation[currObservation.Polygon]
 		if !ok || latest.Time < currObservation.Time {
-			userToLastObservation[currObservation.User] = currObservation
+			userToLastObservation[currObservation.Polygon] = currObservation
 		}
 	}
 
@@ -98,7 +98,7 @@ func getObservationAsText(observations []Observation) string {
 
 	var buf bytes.Buffer
 	for _, currObservation := range observations {
-		buf.WriteString(fmt.Sprintf("Polygon: %s, Density %.1f\n", currObservation.Polygon, currObservation.Density))
+		buf.WriteString(fmt.Sprintf("%s: %.1f\n", currObservation.Polygon, currObservation.Density))
 	}
 
 	return buf.String()
