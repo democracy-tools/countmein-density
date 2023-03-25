@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"sort"
 	"time"
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
@@ -95,6 +96,10 @@ func toObservationSlice(userToLastObservation map[string]Observation) []Observat
 }
 
 func getObservationAsText(observations []Observation) []byte {
+
+	sort.Slice(observations, func(i, j int) bool {
+		return observations[i].Polygon < observations[j].Polygon
+	})
 
 	var buf bytes.Buffer
 	for _, currObservation := range observations {

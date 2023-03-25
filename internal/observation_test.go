@@ -70,4 +70,9 @@ func TestHandle_GetObservations(t *testing.T) {
 	require.NoError(t, json.NewDecoder(w.Result().Body).Decode(&res))
 	require.Len(t, res["observations"], 1)
 	require.Equal(t, float32(2), res["observations"][0].Density)
+
+	// buf := new(strings.Builder)
+	// io.Copy(buf, w.Result().Body)
+	// a := buf.String()
+	// fmt.Println(a)
 }
