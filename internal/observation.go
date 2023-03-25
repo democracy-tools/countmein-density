@@ -67,7 +67,7 @@ func (h *Handle) GetObservations(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]interface{}{"observations": observations})
 	} else {
 		w.Header().Set("Content-Type", "text/plain")
-		w.Write([]byte(getObservationAsText(observations)))
+		w.Write(getObservationAsText(observations))
 	}
 }
 
@@ -94,14 +94,18 @@ func toObservationSlice(userToLastObservation map[string]Observation) []Observat
 	return res
 }
 
-func getObservationAsText(observations []Observation) string {
+func getObservationAsText(observations []Observation) []byte {
 
 	var buf bytes.Buffer
 	for _, currObservation := range observations {
 		buf.WriteString(fmt.Sprintf("%s: %.1f\n", currObservation.Polygon, currObservation.Density))
 	}
 
-	return buf.String()
+	res := buf.Bytes()
+	if len(res) == 0 {
+		return []byte("No observation found")
+	}
+	return res
 }
 
 func validateObservation(observation *Observation) bool {
