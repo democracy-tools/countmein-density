@@ -121,7 +121,7 @@ func validateObservation(observation *Observation) bool {
 		return false
 	}
 
-	match, err := regexp.MatchString("^[A-Z]+[1-9][0-9]{0,2}$", observation.Polygon)
+	match, err := regexp.MatchString("^[A-Z]+[1-9][0-9]{0,2}[A-Z]?$", observation.Polygon)
 	if err != nil {
 		log.Errorf("failed to validate polygon '%s' using regexp with '%v'", observation.Polygon, err)
 		return false

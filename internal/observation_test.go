@@ -20,7 +20,7 @@ func TestHandle_CreateObservation(t *testing.T) {
 		&internal.Observation{
 			Time:    time.Now().Unix(),
 			User:    "israel",
-			Polygon: "A8",
+			Polygon: "A18B",
 			Density: 1.5,
 		}))
 
