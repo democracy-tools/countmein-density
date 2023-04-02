@@ -33,7 +33,7 @@ func (h *Handle) Register(w http.ResponseWriter, r *http.Request) {
 		Email:    request.Email,
 		Name:     request.Name,
 		Time:     time.Now().Unix(),
-		Verified: false,
+		Verified: -1,
 	}); err != nil {
 		log.Errorf("failed to create user '%+v' in datastore with '%v'", request, err)
 		w.WriteHeader(http.StatusInternalServerError)
