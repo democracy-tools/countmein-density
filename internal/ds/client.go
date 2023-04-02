@@ -16,19 +16,11 @@ type Kind string
 
 const (
 	KindObservation Kind = "observation"
+	KindUser        Kind = "user"
 
 	EnvKeyDatastoreToken = "DATASTORE_KEY"
 	namespace            = "dev"
 )
-
-func IsNoSuchEntityError(err error) bool {
-
-	if err == nil {
-		return false
-	}
-
-	return err.Error() == datastore.ErrNoSuchEntity.Error()
-}
 
 type Client interface {
 	GetByTime(kind Kind, from int64, dst interface{}) error

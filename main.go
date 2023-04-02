@@ -22,14 +22,22 @@ import (
 
 func main() {
 
-	const observations = "/observations"
+	const observations, register = "/observations", "/register"
 	handle := internal.NewHandle(ds.NewClientWrapper(env.Project))
 	serve(
-		[]string{observations, observations, observations},
-		[]string{http.MethodPost, http.MethodGet, http.MethodOptions},
-		[]func(http.ResponseWriter, *http.Request){
-			access(handle.CreateObservation), access(handle.GetObservations),
-			options([]string{http.MethodPost, http.MethodGet})},
+		[]string{
+			observations, observations, observations,
+			register, register,
+		}, []string{
+			http.MethodPost, http.MethodGet, http.MethodOptions,
+			http.MethodPost, http.MethodOptions,
+		}, []func(http.ResponseWriter, *http.Request){
+			access(handle.CreateObservation),
+			access(handle.GetObservations),
+			options([]string{http.MethodPost, http.MethodGet}),
+			access(handle.Register),
+			options([]string{http.MethodPost}),
+		},
 	)
 }
 
