@@ -15,8 +15,9 @@ import (
 type Kind string
 
 const (
-	KindObservation Kind = "observation"
-	KindUser        Kind = "user"
+	KindObservation     Kind = "observation"
+	KindRegisterRequest Kind = "register_request"
+	KindUser            Kind = "user"
 
 	EnvKeyDatastoreToken = "DATASTORE_KEY"
 	namespace            = "dev"

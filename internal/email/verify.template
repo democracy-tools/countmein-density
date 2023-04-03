@@ -1,0 +1,6 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <span>Click <a href={{.Link}}>here</a> to verify your email</span><br/><br/>
+</body>
+</html>

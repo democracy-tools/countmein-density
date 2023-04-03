@@ -2,17 +2,20 @@ package internal
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/mail"
 	"time"
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
+	"github.com/democracy-tools/countmein-density/internal/email"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
 type Register struct {
-	Email string `json:"email"`
 	Name  string `json:"name"`
+	Email string `json:"email"`
 }
 
 func (h *Handle) Register(w http.ResponseWriter, r *http.Request) {
@@ -29,18 +32,26 @@ func (h *Handle) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := h.client.Put(ds.KindUser, request.Email, &ds.User{
-		Email:    request.Email,
-		Name:     request.Name,
-		Time:     time.Now().Unix(),
-		Verified: -1,
-	}); err != nil {
+	token := uuid.NewString()
+	err = h.client.Put(ds.KindRegisterRequest, token, &ds.RegisterRequest{
+		Name:  request.Name,
+		Email: request.Email,
+		Time:  time.Now().Unix(),
+	})
+	if err != nil {
 		log.Errorf("failed to create user '%+v' in datastore with '%v'", request, err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// TODO: send email
+	err = email.GetInstance().Send(request.Email,
+		"internal/email/verify.template",
+		"CountMeIn verify",
+		struct{ Link string }{Link: fmt.Sprintf("https://aaa.com?token=%s", token)})
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusCreated)
 }
