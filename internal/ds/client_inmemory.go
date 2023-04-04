@@ -11,6 +11,8 @@ func NewInMemoryClient() Client {
 	return &InMemoryClient{}
 }
 
+func (c *InMemoryClient) Get(kind Kind, id string, dst interface{}) error { return nil }
+
 func (c *InMemoryClient) SetGetByTimeDst(dst interface{}) { c.getByTimeDst = dst }
 
 func (c *InMemoryClient) GetByTime(kind Kind, from int64, dst interface{}) error {
@@ -22,7 +24,4 @@ func (c *InMemoryClient) GetByTime(kind Kind, from int64, dst interface{}) error
 	return nil
 }
 
-func (c *InMemoryClient) Put(kind Kind, id string, src interface{}) error {
-
-	return nil
-}
+func (c *InMemoryClient) Put(kind Kind, id string, src interface{}) error { return nil }

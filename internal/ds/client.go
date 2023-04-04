@@ -24,6 +24,7 @@ const (
 )
 
 type Client interface {
+	Get(kind Kind, id string, dst interface{}) error
 	GetByTime(kind Kind, from int64, dst interface{}) error
 	Put(kind Kind, id string, src interface{}) error
 }
@@ -64,6 +65,11 @@ func NewClientWrapper(project string) Client {
 	return &ClientWrapper{ds: client}
 }
 
+func (c *ClientWrapper) Get(kind Kind, id string, dst interface{}) error {
+
+	return c.ds.Get(context.Background(), getKey(kind, id), dst)
+}
+
 func (c *ClientWrapper) GetByTime(kind Kind, from int64, dst interface{}) error {
 
 	q := datastore.NewQuery(string(kind)).FilterField("time", ">", from).Order("time").Namespace(namespace)
@@ -92,10 +98,10 @@ func (c *ClientWrapper) Put(kind Kind, id string, src interface{}) error {
 	return err
 }
 
-func getKey(kind Kind, key string) *datastore.Key {
+func getKey(kind Kind, id string) *datastore.Key {
 
-	ret := datastore.NameKey(string(kind), key, nil)
-	ret.Namespace = namespace
+	res := datastore.NameKey(string(kind), id, nil)
+	res.Namespace = namespace
 
-	return ret
+	return res
 }

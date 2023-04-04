@@ -4,18 +4,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/mail"
+	"regexp"
 	"time"
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
-	"github.com/democracy-tools/countmein-density/internal/email"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
 
 type Register struct {
 	Name  string `json:"name"`
-	Email string `json:"email"`
+	Phone string `json:"phone"`
 }
 
 func (h *Handle) Register(w http.ResponseWriter, r *http.Request) {
@@ -34,8 +33,8 @@ func (h *Handle) Register(w http.ResponseWriter, r *http.Request) {
 
 	token := uuid.NewString()
 	err = h.client.Put(ds.KindRegisterRequest, token, &ds.RegisterRequest{
+		Phone: request.Phone,
 		Name:  request.Name,
-		Email: request.Email,
 		Time:  time.Now().Unix(),
 	})
 	if err != nil {
@@ -44,16 +43,26 @@ func (h *Handle) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = email.GetInstance().Send(request.Email,
-		"internal/email/verify.template",
-		"CountMeIn verify",
-		struct{ Link string }{Link: fmt.Sprintf("https://aaa.com?token=%s", token)})
+	err = sendVerifyMessage(request.Phone, token)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
+}
+
+func sendVerifyMessage(phone string, token string) error {
+
+	// return email.GetInstance().Send(request.Email,
+	// 	"internal/email/verify.template",
+	// 	"CountMeIn verify",
+	// 	struct{ Link string }{Link: fmt.Sprintf("https://aaa.com?token=%s", token)})
+
+	message := fmt.Sprintf("Please, click to join CountMeIn :)\n%s?token=%s", VerificationUrl, token)
+	log.Infof("sending '%s'", message)
+
+	return nil
 }
 
 func validateRegisterRequest(request *Register) bool {
@@ -63,11 +72,16 @@ func validateRegisterRequest(request *Register) bool {
 		return false
 	}
 
-	_, err := mail.ParseAddress(request.Email)
-	if err != nil {
-		log.Infof("invalid register email with '%v'", err)
+	if !regexp.MustCompile(`^[^0-9]{10}$`).MatchString(request.Phone) {
+		log.Infof("invalid phone '%s'", request.Phone)
 		return false
 	}
 
 	return true
+
+	// _, err := mail.ParseAddress(request.Email)
+	// if err != nil {
+	// 	log.Infof("invalid register email with '%v'", err)
+	// 	return false
+	// }
 }
