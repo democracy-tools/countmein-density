@@ -14,6 +14,7 @@ import (
 	"github.com/democracy-tools/countmein-density/internal"
 	"github.com/democracy-tools/countmein-density/internal/ds"
 	"github.com/democracy-tools/countmein-density/internal/env"
+	"github.com/democracy-tools/countmein-density/internal/whatapp"
 	"github.com/gorilla/mux"
 	"github.com/onrik/logrus/filename"
 	log "github.com/sirupsen/logrus"
@@ -23,7 +24,10 @@ import (
 func main() {
 
 	const observations, register, users = "/observations", "/register", "/users"
-	handle := internal.NewHandle(ds.NewClientWrapper(env.Project))
+	handle := internal.NewHandle(
+		ds.NewClientWrapper(env.Project),
+		whatsapp.NewClientWrapper(),
+	)
 	serve(
 		[]string{
 			observations, observations, observations,

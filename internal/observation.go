@@ -23,13 +23,6 @@ type Observation struct {
 	Longitude float32 `json:"longitude" datastore:"longitude"`
 }
 
-type Handle struct{ client ds.Client }
-
-func NewHandle(client ds.Client) *Handle {
-
-	return &Handle{client: client}
-}
-
 func (h *Handle) CreateObservation(w http.ResponseWriter, r *http.Request) {
 
 	var observation Observation
@@ -44,7 +37,7 @@ func (h *Handle) CreateObservation(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	err = h.client.Put(ds.KindObservation, uuid.NewString(), &observation)
+	err = h.dsc.Put(ds.KindObservation, uuid.NewString(), &observation)
 	if err != nil {
 		log.Errorf("failed to insert new observation '%+v' into datastore with '%v'", observation, err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -56,7 +49,7 @@ func (h *Handle) CreateObservation(w http.ResponseWriter, r *http.Request) {
 func (h *Handle) GetObservations(w http.ResponseWriter, r *http.Request) {
 
 	var observations []Observation
-	err := h.client.GetByTime(ds.KindObservation, time.Now().Add(time.Minute*(-17)).Unix(), &observations)
+	err := h.dsc.GetByTime(ds.KindObservation, time.Now().Add(time.Minute*(-17)).Unix(), &observations)
 	if err != nil {
 		log.Errorf("failed to get observations by time with '%v'", err)
 		w.WriteHeader(http.StatusInternalServerError)

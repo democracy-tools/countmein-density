@@ -7,6 +7,7 @@ import (
 
 	"github.com/democracy-tools/countmein-density/internal"
 	"github.com/democracy-tools/countmein-density/internal/ds"
+	whatsapp "github.com/democracy-tools/countmein-density/internal/whatapp"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 )
@@ -20,7 +21,7 @@ func TestHandle_CreateUser(t *testing.T) {
 	r.URL.RawQuery = q.Encode()
 	w := httptest.NewRecorder()
 
-	internal.NewHandle(ds.NewInMemoryClient()).CreateUser(w, r)
+	internal.NewHandle(ds.NewInMemoryClient(), whatsapp.NewInMemoryClient()).CreateUser(w, r)
 
 	require.Equal(t, http.StatusOK, w.Result().StatusCode)
 }

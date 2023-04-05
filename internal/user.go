@@ -13,13 +13,13 @@ import (
 func (h *Handle) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	token := r.URL.Query().Get("token")
-	request, code := getRegisterRequest(h.client, token)
+	request, code := getRegisterRequest(h.dsc, token)
 	if code != http.StatusOK {
 		w.WriteHeader(code)
 		return
 	}
-	
-	err := h.client.Put(ds.KindUser, uuid.NewString(), &ds.User{
+
+	err := h.dsc.Put(ds.KindUser, uuid.NewString(), &ds.User{
 		Phone: request.Phone,
 		Name:  request.Name,
 		Time:  time.Now().Unix(),
@@ -29,7 +29,7 @@ func (h *Handle) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = sendUserCreatedMessage()
+	err = h.wac.Send(request.Phone, fmt.Sprintf("כיף שהצטרפת אלינו, נשלח לך הודעה לפני ההפגנה עם פרטים.\nבנתיים את/ה מוזמן/ת להצטרף גם לקבוצת הוואטאפ שלנו\n%s", WhatAppGroupLink))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -64,12 +64,4 @@ func validateToken(token string) bool {
 	}
 
 	return true
-}
-
-func sendUserCreatedMessage() error {
-
-	message := fmt.Sprintf("כיף שהצטרפת אלינו, נשלח לך הודעה לפני ההפגנה עם פרטים.\nבנתיים את/ה מוזמן/ת להצטרף גם לקבוצת הוואטאפ שלנו\n%s", WhatAppGroupLink)
-	log.Infof("sending '%s'", message)
-
-	return nil
 }

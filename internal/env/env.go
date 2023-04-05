@@ -30,6 +30,16 @@ func GetEmailPassword() string {
 	return failIfEmpty("EMAIL_PASSWORD")
 }
 
+func GetWhatAppToken() string {
+
+	return failIfEmpty("WHATSAPP_TOKEN")
+}
+
+func GetWhatsAppFromPhone() string {
+
+	return failIfEmpty("WHATSAPP_FROM_PHONE")
+}
+
 func failIfEmpty(key string) string {
 
 	res := os.Getenv(key)

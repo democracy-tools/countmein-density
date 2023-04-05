@@ -10,6 +10,7 @@ import (
 
 	"github.com/democracy-tools/countmein-density/internal"
 	"github.com/democracy-tools/countmein-density/internal/ds"
+	whatsapp "github.com/democracy-tools/countmein-density/internal/whatapp"
 	"github.com/stretchr/testify/require"
 )
 
@@ -28,7 +29,7 @@ func TestHandle_CreateObservation(t *testing.T) {
 	require.NoError(t, err)
 	w := httptest.NewRecorder()
 
-	internal.NewHandle(ds.NewInMemoryClient()).CreateObservation(w, r)
+	internal.NewHandle(ds.NewInMemoryClient(), whatsapp.NewInMemoryClient()).CreateObservation(w, r)
 
 	require.Equal(t, http.StatusCreated, w.Result().StatusCode)
 }
@@ -40,9 +41,9 @@ func TestHandle_GetObservations(t *testing.T) {
 	r.Header.Add("Accept", "application/json")
 	w := httptest.NewRecorder()
 
-	client := ds.NewInMemoryClient().(*ds.InMemoryClient)
+	dsc := ds.NewInMemoryClient().(*ds.InMemoryClient)
 	now := time.Now().Unix()
-	client.SetGetByTimeDst([]internal.Observation{
+	dsc.SetGetByTimeDst([]internal.Observation{
 		{
 			Time:    now - 10,
 			User:    "israel",
@@ -63,7 +64,7 @@ func TestHandle_GetObservations(t *testing.T) {
 		},
 	})
 
-	internal.NewHandle(client).GetObservations(w, r)
+	internal.NewHandle(dsc, whatsapp.NewInMemoryClient()).GetObservations(w, r)
 
 	require.Equal(t, http.StatusOK, w.Result().StatusCode)
 	var res map[string][]internal.Observation

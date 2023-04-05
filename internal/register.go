@@ -2,7 +2,6 @@ package internal
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"regexp"
 	"time"
@@ -32,7 +31,7 @@ func (h *Handle) Register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	token := uuid.NewString()
-	err = h.client.Put(ds.KindRegisterRequest, token, &ds.RegisterRequest{
+	err = h.dsc.Put(ds.KindRegisterRequest, token, &ds.RegisterRequest{
 		Phone: request.Phone,
 		Name:  request.Name,
 		Time:  time.Now().Unix(),
@@ -43,26 +42,13 @@ func (h *Handle) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = sendVerifyMessage(request.Phone, token)
+	err = h.wac.Send(request.Phone, token)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
-}
-
-func sendVerifyMessage(phone string, token string) error {
-
-	// return email.GetInstance().Send(request.Email,
-	// 	"internal/email/verify.template",
-	// 	"CountMeIn verify",
-	// 	struct{ Link string }{Link: fmt.Sprintf("https://aaa.com?token=%s", token)})
-
-	message := fmt.Sprintf("Please, click to join CountMeIn :)\n%s?token=%s", VerificationUrl, token)
-	log.Infof("sending '%s'", message)
-
-	return nil
 }
 
 func validateRegisterRequest(request *Register) bool {
@@ -72,16 +58,12 @@ func validateRegisterRequest(request *Register) bool {
 		return false
 	}
 
-	if !regexp.MustCompile(`^[^0-9]{10}$`).MatchString(request.Phone) {
+	if !regexp.MustCompile(`^[0-9]{10}$`).MatchString(request.Phone) {
 		log.Infof("invalid phone '%s'", request.Phone)
 		return false
 	}
 
-	return true
+	// TODO: phone request does not exist
 
-	// _, err := mail.ParseAddress(request.Email)
-	// if err != nil {
-	// 	log.Infof("invalid register email with '%v'", err)
-	// 	return false
-	// }
+	return true
 }
