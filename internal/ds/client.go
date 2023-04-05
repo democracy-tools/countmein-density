@@ -19,6 +19,7 @@ const (
 	KindRegisterRequest Kind = "register_request"
 	KindUser            Kind = "user"
 	KindVolunteer       Kind = "volunteer"
+	KindPreference      Kind = "preference"
 
 	EnvKeyDatastoreToken = "DATASTORE_KEY"
 	namespace            = "dev"

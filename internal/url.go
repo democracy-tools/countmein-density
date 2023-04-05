@@ -3,6 +3,7 @@ package internal
 const (
 	// RegisterUrl = "https://storage.googleapis.com/countmein-web/register.html"
 	VerificationUrl = "https://storage.googleapis.com/countmein-web/verification.html"
+	ObservationUrl  = "https://storage.googleapis.com/countmein-web/protest.html"
 
 	// job
 	JoinUrl = "https://storage.googleapis.com/countmein-web/join.html"

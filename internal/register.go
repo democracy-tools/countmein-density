@@ -2,6 +2,7 @@ package internal
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"regexp"
 	"time"
@@ -42,7 +43,7 @@ func (h *Handle) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.wac.Send(request.Phone, token)
+	err = h.wac.Send(request.Phone, fmt.Sprintf("שמחים שהצטרפת לספירת מפגינים, לחץ על הלינק לאימות\n%s?token=%s", VerificationUrl, token))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return

@@ -14,7 +14,7 @@ import (
 	"github.com/democracy-tools/countmein-density/internal"
 	"github.com/democracy-tools/countmein-density/internal/ds"
 	"github.com/democracy-tools/countmein-density/internal/env"
-	"github.com/democracy-tools/countmein-density/internal/whatapp"
+	whatsapp "github.com/democracy-tools/countmein-density/internal/whatapp"
 	"github.com/gorilla/mux"
 	"github.com/onrik/logrus/filename"
 	log "github.com/sirupsen/logrus"
@@ -23,7 +23,13 @@ import (
 
 func main() {
 
-	const observations, register, users = "/observations", "/register", "/users"
+	const (
+		observations = "/observations"
+		register     = "/register"
+		users        = "/users"
+		join         = "/demonstrations/{demonstration-id}/users/{user-id}"
+	)
+
 	handle := internal.NewHandle(
 		ds.NewClientWrapper(env.Project),
 		whatsapp.NewClientWrapper(),
@@ -33,8 +39,10 @@ func main() {
 			observations, observations, observations,
 			register, register,
 			users, users,
+			join, join,
 		}, []string{
 			http.MethodPost, http.MethodGet, http.MethodOptions,
+			http.MethodPost, http.MethodOptions,
 			http.MethodPost, http.MethodOptions,
 			http.MethodPost, http.MethodOptions,
 		}, []func(http.ResponseWriter, *http.Request){
@@ -44,6 +52,8 @@ func main() {
 			access(handle.Register),
 			options([]string{http.MethodPost}),
 			access(handle.CreateUser),
+			options([]string{http.MethodPost}),
+			access(handle.Join),
 			options([]string{http.MethodPost}),
 		},
 	)

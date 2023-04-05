@@ -14,9 +14,13 @@ type User struct {
 }
 
 type Volunteer struct {
-	Id              string  `json:"id" datastore:"id"`
-	DemonstrationId string  `json:"demonstration_id" datastore:"demonstration_id"`
-	Polygon         string  `json:"polygon" datastore:"polygon"`
-	Latitude        float64 `json:"latitude" datastore:"latitude"`
-	Longitude       float64 `json:"longitude" datastore:"longitude"`
+	Id              string `json:"id" datastore:"id"`
+	DemonstrationId string `json:"demonstration_id" datastore:"demonstration_id"`
+	Polygon         string `json:"polygon" datastore:"polygon"`
+	Location        string `json:"location" datastore:"location"`
+}
+
+type Preference struct {
+	UserId  string `json:"id" datastore:"id"`
+	Polygon string `json:"polygon" datastore:"polygon"`
 }
