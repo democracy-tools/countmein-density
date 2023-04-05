@@ -13,6 +13,8 @@ func NewInMemoryClient() Client {
 
 func (c *InMemoryClient) Get(kind Kind, id string, dst interface{}) error { return nil }
 
+func (c *InMemoryClient) GetAll(kind Kind, dst interface{}) error { return nil }
+
 func (c *InMemoryClient) SetGetByTimeDst(dst interface{}) { c.getByTimeDst = dst }
 
 func (c *InMemoryClient) GetByTime(kind Kind, from int64, dst interface{}) error {

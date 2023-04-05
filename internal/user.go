@@ -20,6 +20,7 @@ func (h *Handle) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := h.dsc.Put(ds.KindUser, uuid.NewString(), &ds.User{
+		Id:    uuid.NewString(),
 		Phone: request.Phone,
 		Name:  request.Name,
 		Time:  time.Now().Unix(),

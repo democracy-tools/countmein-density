@@ -18,6 +18,7 @@ const (
 	KindObservation     Kind = "observation"
 	KindRegisterRequest Kind = "register_request"
 	KindUser            Kind = "user"
+	KindVolunteer       Kind = "volunteer"
 
 	EnvKeyDatastoreToken = "DATASTORE_KEY"
 	namespace            = "dev"
@@ -25,6 +26,7 @@ const (
 
 type Client interface {
 	Get(kind Kind, id string, dst interface{}) error
+	GetAll(kind Kind, dst interface{}) error
 	GetByTime(kind Kind, from int64, dst interface{}) error
 	Put(kind Kind, id string, src interface{}) error
 }
@@ -70,9 +72,20 @@ func (c *ClientWrapper) Get(kind Kind, id string, dst interface{}) error {
 	return c.ds.Get(context.Background(), getKey(kind, id), dst)
 }
 
+func (c *ClientWrapper) GetAll(kind Kind, dst interface{}) error {
+
+	q := datastore.NewQuery(string(kind)).Namespace(namespace)
+	_, err := c.ds.GetAll(context.Background(), q, dst)
+	if err != nil {
+		log.Errorf("failed to get all '%s' from datastore namespace '%s' with '%v'", kind, namespace, err)
+	}
+
+	return err
+}
+
 func (c *ClientWrapper) GetByTime(kind Kind, from int64, dst interface{}) error {
 
-	q := datastore.NewQuery(string(kind)).FilterField("time", ">", from).Order("time").Namespace(namespace)
+	q := datastore.NewQuery(string(kind)).Namespace(namespace).FilterField("time", ">", from).Order("time")
 	_, err := c.ds.GetAll(context.Background(), q, dst)
 	if err != nil {
 		msg := fmt.Sprintf("failed to get '%s' by time from datastore namespace '%s' with '%v'", kind, namespace, err)
