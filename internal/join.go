@@ -68,7 +68,7 @@ func (h *Handle) Join(w http.ResponseWriter, r *http.Request) {
 	}
 
 	link := fmt.Sprintf("%s?demonstration=%s&user-id=%s&user=%s&polygon=%s&q=%s", ObservationUrl, demonstrationId, userId, url.QueryEscape(user.Name), polygon, location)
-	h.wac.Send(user.Phone, fmt.Sprintf("בהפגנה שי להשתמש בלינק לנווט למיקום ולדווח צפיפות:\n%s", link))
+	h.wac.Send(user.Phone, fmt.Sprintf("בהפגנה יש להשתמש בלינק לנווט למיקום ולדווח צפיפות:\n%s", link))
 	log.Infof("volunteer added :) '%s'", link)
 }
 
