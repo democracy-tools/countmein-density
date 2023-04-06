@@ -28,7 +28,7 @@ const (
 type Client interface {
 	Get(kind Kind, id string, dst interface{}) error
 	GetAll(kind Kind, dst interface{}) error
-	GetByTime(kind Kind, from int64, dst interface{}) error
+	GetFilter(kind Kind, filterFieldName string, filterOperator string, filterValue interface{}, dst interface{}) error
 	Put(kind Kind, id string, src interface{}) error
 }
 
@@ -84,12 +84,12 @@ func (c *ClientWrapper) GetAll(kind Kind, dst interface{}) error {
 	return err
 }
 
-func (c *ClientWrapper) GetByTime(kind Kind, from int64, dst interface{}) error {
+func (c *ClientWrapper) GetFilter(kind Kind, filterFieldName string, filterOperator string, filterValue interface{}, dst interface{}) error {
 
-	q := datastore.NewQuery(string(kind)).Namespace(namespace).FilterField("time", ">", from).Order("time")
+	q := datastore.NewQuery(string(kind)).Namespace(namespace).FilterField(filterFieldName, filterOperator, filterValue).Order("time")
 	_, err := c.ds.GetAll(context.Background(), q, dst)
 	if err != nil {
-		msg := fmt.Sprintf("failed to get '%s' by time from datastore namespace '%s' with '%v'", kind, namespace, err)
+		msg := fmt.Sprintf("failed to get filter '%s' from datastore namespace '%s' with '%v'", kind, namespace, err)
 		if IsNoSuchEntityError(err) {
 			log.Info(msg)
 		} else {

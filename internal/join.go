@@ -31,7 +31,7 @@ func (h *Handle) Join(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	available, code := getAvailablePolygons(h.dsc)
+	available, code := getAvailablePolygons(h.dsc, demonstrationId)
 	if code != http.StatusOK {
 		w.WriteHeader(code)
 		return
@@ -86,11 +86,11 @@ func getPolygonByPriority(available map[string]string, preferred string) (string
 	return "", ""
 }
 
-func getAvailablePolygons(dsc ds.Client) (map[string]string, int) {
+func getAvailablePolygons(dsc ds.Client, demonstration string) (map[string]string, int) {
 
 	res := getPolygons()
 	var volunteers []ds.Volunteer
-	err := dsc.GetAll(ds.KindVolunteer, &volunteers)
+	err := dsc.GetFilter(ds.KindVolunteer, "demonstration_id", "=", demonstration, &volunteers)
 	if err != nil {
 		return nil, http.StatusInternalServerError
 	}

@@ -17,7 +17,7 @@ func (c *InMemoryClient) GetAll(kind Kind, dst interface{}) error { return nil }
 
 func (c *InMemoryClient) SetGetByTimeDst(dst interface{}) { c.getByTimeDst = dst }
 
-func (c *InMemoryClient) GetByTime(kind Kind, from int64, dst interface{}) error {
+func (c *InMemoryClient) GetFilter(kind Kind, filterFieldName string, filterOperator string, filterValue interface{}, dst interface{}) error {
 
 	if c.getByTimeDst != nil {
 		reflect.ValueOf(dst).Elem().Set(reflect.ValueOf(c.getByTimeDst))

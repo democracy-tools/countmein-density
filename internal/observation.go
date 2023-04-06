@@ -49,7 +49,7 @@ func (h *Handle) CreateObservation(w http.ResponseWriter, r *http.Request) {
 func (h *Handle) GetObservations(w http.ResponseWriter, r *http.Request) {
 
 	var observations []Observation
-	err := h.dsc.GetByTime(ds.KindObservation, time.Now().Add(time.Minute*(-17)).Unix(), &observations)
+	err := h.dsc.GetFilter(ds.KindObservation, "time", ">", time.Now().Add(time.Minute*(-17)).Unix(), &observations)
 	if err != nil {
 		log.Errorf("failed to get observations by time with '%v'", err)
 		w.WriteHeader(http.StatusInternalServerError)
