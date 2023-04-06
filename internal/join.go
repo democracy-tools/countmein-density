@@ -3,6 +3,7 @@ package internal
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
@@ -66,7 +67,7 @@ func (h *Handle) Join(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	link := fmt.Sprintf("%s?demonstration=%s&user-id=%s&user=%s&polygon=%s&q=%s", ObservationUrl, demonstrationId, userId, user.Name, polygon, location)
+	link := fmt.Sprintf("%s?demonstration=%s&user-id=%s&user=%s&polygon=%s&q=%s", ObservationUrl, demonstrationId, userId, url.QueryEscape(user.Name), polygon, location)
 	h.wac.Send(user.Phone, fmt.Sprintf("לינק לנווט למיקום ולדווח צפיפות\n%s", link))
 	log.Infof("volunteer added :) '%s'", link)
 }
