@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"reflect"
 	"testing"
 	"time"
 
@@ -43,26 +44,31 @@ func TestHandle_GetObservations(t *testing.T) {
 
 	dsc := ds.NewInMemoryClient().(*ds.InMemoryClient)
 	now := time.Now().Unix()
-	dsc.SetGetByTimeDst([]internal.Observation{
-		{
-			Time:    now - 10,
-			User:    "israel",
-			Polygon: "A8",
-			Density: 1.5,
-		},
-		{
-			Time:    now,
-			User:    "israel",
-			Polygon: "A8",
-			Density: 2,
-		},
-		{
-			Time:    now - 5,
-			User:    "israel",
-			Polygon: "A8",
-			Density: 5,
-		},
-	})
+	dsc.SetGetFilterDelegate(
+		func(kind ds.Kind, filterFieldName string, filterOperator string, filterValue interface{}, dst interface{}) error {
+			reflect.ValueOf(dst).Elem().Set(reflect.ValueOf([]internal.Observation{
+				{
+					Time:    now - 10,
+					User:    "israel",
+					Polygon: "A8",
+					Density: 1.5,
+				},
+				{
+					Time:    now,
+					User:    "israel",
+					Polygon: "A8",
+					Density: 2,
+				},
+				{
+					Time:    now - 5,
+					User:    "israel",
+					Polygon: "A8",
+					Density: 5,
+				},
+			}))
+
+			return nil
+		})
 
 	internal.NewHandle(dsc, whatsapp.NewInMemoryClient()).GetObservations(w, r)
 
