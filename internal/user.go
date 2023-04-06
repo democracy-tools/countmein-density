@@ -32,7 +32,7 @@ func (h *Handle) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.wac.Send(request.Phone, fmt.Sprintf("האימות עבר בהצלחה, נשלח לך הודעה לפני ההפגנה עם פרטים.\nבנתיים את/ה מוזמן/ת להצטרף גם לקבוצת הוואטאפ שלנו\n%s", WhatAppGroupLink))
+	err = h.wac.Send(request.Phone, fmt.Sprintf("האימות עבר בהצלחה, נשלח לך הודעה לפני ההפגנה עם פרטים.\nבנתיים את/ה מוזמן/ת להצטרף גם לקבוצת הוואטאפ שלנו:\n%s", WhatAppGroupLink))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
