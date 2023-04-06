@@ -92,7 +92,7 @@ func getAvailablePolygons(dsc ds.Client, demonstration string) (map[string]strin
 
 	res := getPolygons()
 	var volunteers []ds.Volunteer
-	err := dsc.GetFilter(ds.KindVolunteer, "demonstration_id", "=", demonstration, &volunteers)
+	err := dsc.GetFilter(ds.KindVolunteer, "demonstration_id", "==", demonstration, &volunteers)
 	if err != nil {
 		return nil, http.StatusInternalServerError
 	}
