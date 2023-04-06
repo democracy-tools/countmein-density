@@ -44,7 +44,7 @@ func failIfEmpty(key string) string {
 
 	res := os.Getenv(key)
 	if res == "" {
-		log.Fatal("Please, add environment variable '%s'", key)
+		log.Fatalf("Please, add environment variable '%s'", key)
 	}
 	log.Debugf("%s: %s", key, res)
 
