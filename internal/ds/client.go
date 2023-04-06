@@ -89,7 +89,8 @@ func (c *ClientWrapper) GetFilter(kind Kind, filterFieldName string, filterOpera
 	q := datastore.NewQuery(string(kind)).Namespace(namespace).FilterField(filterFieldName, filterOperator, filterValue)
 	_, err := c.ds.GetAll(context.Background(), q, dst)
 	if err != nil {
-		msg := fmt.Sprintf("failed to get filter '%s' from datastore namespace '%s' with '%v'", kind, namespace, err)
+		msg := fmt.Sprintf("failed to get with filter '%s %s %v' kind '%s' from datastore namespace '%s' with '%v'",
+			filterFieldName, filterOperator, filterValue, kind, namespace, err)
 		if IsNoSuchEntityError(err) {
 			log.Debug(msg)
 		} else {
