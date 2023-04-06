@@ -91,7 +91,7 @@ func (c *ClientWrapper) GetFilter(kind Kind, filterFieldName string, filterOpera
 	if err != nil {
 		msg := fmt.Sprintf("failed to get filter '%s' from datastore namespace '%s' with '%v'", kind, namespace, err)
 		if IsNoSuchEntityError(err) {
-			log.Info(msg)
+			log.Debug(msg)
 		} else {
 			log.Error(msg)
 		}
