@@ -64,7 +64,7 @@ func validateRegisterRequest(dsc ds.Client, request *Register) bool {
 		return false
 	}
 
-	var tmp ds.RegisterRequest
+	var tmp []ds.RegisterRequest
 	err := dsc.GetFilter(ds.KindRegisterRequest, "phone", "==", request.Phone, &tmp)
 	if err == nil {
 		log.Infof("phone '%s' already registered", request.Phone)
