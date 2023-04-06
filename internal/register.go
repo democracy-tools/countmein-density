@@ -26,7 +26,7 @@ func (h *Handle) Register(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	if !validateRegisterRequest(&request) {
+	if !validateRegisterRequest(h.dsc, &request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -52,7 +52,7 @@ func (h *Handle) Register(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func validateRegisterRequest(request *Register) bool {
+func validateRegisterRequest(dsc ds.Client, request *Register) bool {
 
 	if len(request.Name) > 32 {
 		log.Info("invalid register name")
@@ -64,7 +64,11 @@ func validateRegisterRequest(request *Register) bool {
 		return false
 	}
 
-	// TODO: phone request does not exist
+	err := dsc.GetFilter(ds.KindRegisterRequest, "phone", "=", request.Phone, &ds.RegisterRequest{})
+	if err == nil {
+		log.Infof("phone '%s' already registered", request.Phone)
+		return false
+	}
 
 	return true
 }
