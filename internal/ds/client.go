@@ -86,7 +86,7 @@ func (c *ClientWrapper) GetAll(kind Kind, dst interface{}) error {
 
 func (c *ClientWrapper) GetFilter(kind Kind, filterFieldName string, filterOperator string, filterValue interface{}, dst interface{}) error {
 
-	q := datastore.NewQuery(string(kind)).Namespace(namespace).FilterField(filterFieldName, filterOperator, filterValue).Order("time")
+	q := datastore.NewQuery(string(kind)).Namespace(namespace).FilterField(filterFieldName, filterOperator, filterValue)
 	_, err := c.ds.GetAll(context.Background(), q, dst)
 	if err != nil {
 		msg := fmt.Sprintf("failed to get filter '%s' from datastore namespace '%s' with '%v'", kind, namespace, err)
