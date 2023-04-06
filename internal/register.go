@@ -30,6 +30,9 @@ func (h *Handle) Register(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	if string(request.Phone[0]) == "0" {
+		request.Phone = fmt.Sprintf("972%s", request.Phone[1:])
+	}
 
 	token := uuid.NewString()
 	err = h.dsc.Put(ds.KindRegisterRequest, token, &ds.RegisterRequest{
