@@ -18,9 +18,11 @@ func (h *Handle) Join(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	demonstrationId := params["demonstration-id"]
 	userId := params["user-id"]
-	preference := r.URL.Query().Get("preference")
 
-	// TODO: validate user, polygon and check if user has already a polygon for demonstration
+	if !validateToken(demonstrationId) || !validateToken(userId) {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	var user ds.User
 	err := h.dsc.Get(ds.KindUser, userId, &user)
@@ -40,14 +42,10 @@ func (h *Handle) Join(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	preference := r.URL.Query().Get("preference")
 	if preference == "" {
-		tmp := ds.Preference{Polygon: ""}
-		err := h.dsc.Get(ds.KindPreference, userId, &tmp)
-		if err != nil {
-			preference = tmp.Polygon
-		}
+		preference = user.Preference
 	}
-
 	polygon, location := getPolygonByPriority(available, preference)
 	if polygon == "" {
 		for polygon, location = range available {
@@ -55,7 +53,7 @@ func (h *Handle) Join(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = h.dsc.Put(ds.KindVolunteer, fmt.Sprintf("%s$%s", demonstrationId, userId), &ds.Volunteer{
+	err = h.dsc.Put(ds.KindVolunteer, ds.GetVolunteerId(demonstrationId, userId), &ds.Volunteer{
 		Id:              userId,
 		DemonstrationId: demonstrationId,
 		Polygon:         polygon,

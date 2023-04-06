@@ -21,10 +21,11 @@ func (h *Handle) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	id := uuid.NewString()
 	err := h.dsc.Put(ds.KindUser, id, &ds.User{
-		Id:    id,
-		Phone: request.Phone,
-		Name:  request.Name,
-		Time:  time.Now().Unix(),
+		Id:         id,
+		Phone:      request.Phone,
+		Name:       request.Name,
+		Preference: request.Preference,
+		Time:       time.Now().Unix(),
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

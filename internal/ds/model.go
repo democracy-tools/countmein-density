@@ -1,16 +1,20 @@
 package ds
 
+import "fmt"
+
 type RegisterRequest struct {
-	Phone string `json:"phone" datastore:"phone"`
-	Name  string `json:"name" datastore:"name"`
-	Time  int64  `json:"time" datastore:"time"`
+	Phone      string `json:"phone" datastore:"phone"`
+	Name       string `json:"name" datastore:"name"`
+	Preference string `json:"preference" datastore:"preference"`
+	Time       int64  `json:"time" datastore:"time"`
 }
 
 type User struct {
-	Id    string `json:"id" datastore:"id"`
-	Phone string `json:"phone" datastore:"phone"`
-	Name  string `json:"name" datastore:"name"`
-	Time  int64  `json:"time" datastore:"time"`
+	Id         string `json:"id" datastore:"id"`
+	Phone      string `json:"phone" datastore:"phone"`
+	Name       string `json:"name" datastore:"name"`
+	Preference string `json:"preference" datastore:"preference"`
+	Time       int64  `json:"time" datastore:"time"`
 }
 
 type Volunteer struct {
@@ -20,7 +24,7 @@ type Volunteer struct {
 	Location        string `json:"location" datastore:"location"`
 }
 
-type Preference struct {
-	UserId  string `json:"id" datastore:"id"`
-	Polygon string `json:"polygon" datastore:"polygon"`
+func GetVolunteerId(demonstrationId string, userId string) string {
+
+	return fmt.Sprintf("%s$%s", demonstrationId, userId)
 }
