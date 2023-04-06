@@ -22,6 +22,7 @@ type Volunteer struct {
 	DemonstrationId string `json:"demonstration_id" datastore:"demonstration_id"`
 	Polygon         string `json:"polygon" datastore:"polygon"`
 	Location        string `json:"location" datastore:"location"`
+	Time            int64  `json:"time" datastore:"time"`
 }
 
 func GetVolunteerId(demonstrationId string, userId string) string {

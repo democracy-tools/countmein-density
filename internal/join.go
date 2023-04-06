@@ -3,6 +3,7 @@ package internal
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
 	"github.com/gorilla/mux"
@@ -58,6 +59,7 @@ func (h *Handle) Join(w http.ResponseWriter, r *http.Request) {
 		DemonstrationId: demonstrationId,
 		Polygon:         polygon,
 		Location:        location,
+		Time:            time.Now().Unix(),
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
