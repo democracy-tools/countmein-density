@@ -1,6 +1,8 @@
 package internal_test
 
 import (
+	"bytes"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -14,11 +16,12 @@ import (
 
 func TestHandle_CreateUser(t *testing.T) {
 
-	r, err := http.NewRequest(http.MethodPost, "/users", nil)
+	var buf bytes.Buffer
+	require.NoError(t, json.NewEncoder(&buf).Encode(&struct {
+		Token string `json:"token"`
+	}{Token: uuid.NewString()}))
+	r, err := http.NewRequest(http.MethodPost, "/users", &buf)
 	require.NoError(t, err)
-	q := r.URL.Query()
-	q.Add("token", uuid.NewString())
-	r.URL.RawQuery = q.Encode()
 	w := httptest.NewRecorder()
 
 	internal.NewHandle(ds.NewInMemoryClient(), whatsapp.NewInMemoryClient()).CreateUser(w, r)
