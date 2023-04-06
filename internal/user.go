@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -12,8 +13,7 @@ import (
 
 func (h *Handle) CreateUser(w http.ResponseWriter, r *http.Request) {
 
-	token := r.URL.Query().Get("token")
-	request, code := getRegisterRequest(h.dsc, token)
+	request, code := getRegisterRequest(h.dsc, r)
 	if code != http.StatusOK {
 		w.WriteHeader(code)
 		return
@@ -39,16 +39,25 @@ func (h *Handle) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func getRegisterRequest(client ds.Client, token string) (*ds.RegisterRequest, int) {
+func getRegisterRequest(client ds.Client, r *http.Request) (*ds.RegisterRequest, int) {
 
-	if !validateToken(token) {
+	var request struct {
+		Token string `json:"token"`
+	}
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		log.Infof("failed to decode create user request with '%v'", err)
 		return nil, http.StatusBadRequest
 	}
+	if !validateToken(request.Token) {
+		return nil, http.StatusBadRequest
+	}
+
 	var res ds.RegisterRequest
-	err := client.Get(ds.KindRegisterRequest, token, &res)
+	err = client.Get(ds.KindRegisterRequest, request.Token, &res)
 	if err != nil {
 		if ds.IsNoSuchEntityError(err) {
-			log.Infof("'%s' with token '%s' not found", ds.KindRegisterRequest, token)
+			log.Infof("'%s' with token '%s' not found", ds.KindRegisterRequest, request.Token)
 			return nil, http.StatusBadRequest
 		}
 		log.Errorf("failed to get '%s' from datastore with '%v'", ds.KindRegisterRequest, err)
