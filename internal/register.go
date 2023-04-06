@@ -46,7 +46,7 @@ func (h *Handle) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.wac.Send(request.Phone, fmt.Sprintf("שמחים שהצטרפת לספירת מפגינים, לחץ/י על הלינק לאימות\n%s?token=%s", VerificationUrl, token))
+	err = h.wac.Send(request.Phone, fmt.Sprintf("שמחים שהצטרפת לספירת מפגינים, לחץ/י על הלינק לאימות:\n%s?token=%s", VerificationUrl, token))
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
