@@ -27,7 +27,8 @@ func main() {
 		observations = "/observations"
 		register     = "/register"
 		users        = "/users"
-		join         = "/demonstrations/{demonstration-id}/users/{user-id}"
+		join         = "/join"
+		// join         = "/demonstrations/{demonstration-id}/users/{user-id}"
 	)
 
 	handle := internal.NewHandle(

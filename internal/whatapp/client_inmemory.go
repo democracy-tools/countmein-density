@@ -11,3 +11,7 @@ func NewInMemoryClient() Client {
 func (c *InMemoryClient) Send(phone string, body string) error {
 	return nil
 }
+
+func (c *InMemoryClient) SendSignupTemplate(to string, token string) error {
+	return nil
+}
