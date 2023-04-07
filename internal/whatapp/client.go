@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/democracy-tools/countmein-density/internal/env"
@@ -56,26 +57,7 @@ func (c *ClientWrapper) SendSignupTemplate(to string, token string) error {
 		return err
 	}
 
-	r, err := http.NewRequest(http.MethodPost, getMessageUrl(c.from), &buf)
-	if err != nil {
-		log.Errorf("failed to create HTTP request for sending a whatsapp message to '%s' with '%v'", to, err)
-		return err
-	}
-	r.Header.Add("Content-Type", "application/json")
-	r.Header.Add("Authorization", c.auth)
-
-	client := http.Client{}
-	response, err := client.Do(r)
-	if err != nil {
-		log.Errorf("failed to send whatsapp message to '%s' with '%v'", to, err)
-		return err
-	}
-	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated {
-		log.Infof("failed to send whatsapp message to '%s' with '%s'", to, response.Status)
-		return err
-	}
-
-	return nil
+	return send(c.from, to, &buf, c.auth)
 }
 
 func (c *ClientWrapper) Send(to string, message string) error {
@@ -96,13 +78,23 @@ func (c *ClientWrapper) Send(to string, message string) error {
 		return err
 	}
 
-	r, err := http.NewRequest(http.MethodPost, getMessageUrl(c.from), &buf)
+	return send(c.from, to, &buf, c.auth)
+}
+
+func getMessageUrl(from string) string {
+
+	return fmt.Sprintf("https://graph.facebook.com/v16.0/%s/messages", from)
+}
+
+func send(from string, to string, body io.Reader, auth string) error {
+
+	r, err := http.NewRequest(http.MethodPost, getMessageUrl(from), body)
 	if err != nil {
 		log.Errorf("failed to create HTTP request for sending a whatsapp message to '%s' with '%v'", to, err)
 		return err
 	}
 	r.Header.Add("Content-Type", "application/json")
-	r.Header.Add("Authorization", c.auth)
+	r.Header.Add("Authorization", auth)
 
 	client := http.Client{}
 	response, err := client.Do(r)
@@ -116,9 +108,4 @@ func (c *ClientWrapper) Send(to string, message string) error {
 	}
 
 	return nil
-}
-
-func getMessageUrl(from string) string {
-
-	return fmt.Sprintf("https://graph.facebook.com/v16.0/%s/messages", from)
 }
