@@ -10,19 +10,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type MessageRequest struct {
-	MessagingProduct string      `json:"messaging_product"`
-	RecipientType    string      `json:"recipient_type"`
-	To               string      `json:"to"`
-	Type             string      `json:"type"`
-	Text             MessageText `json:"text"`
-}
-
-type MessageText struct {
-	PreviewURL bool   `json:"preview_url"`
-	Body       string `json:"body"`
-}
-
 type Client interface {
 	Send(phone string, body string) error
 	SendSignupTemplate(phone string, token string) error
@@ -43,7 +30,7 @@ func NewClientWrapper() Client {
 func (c *ClientWrapper) SendSignupTemplate(to string, token string) error {
 
 	var buf bytes.Buffer
-	err := json.NewEncoder(&buf).Encode(TemplateMessage{
+	err := json.NewEncoder(&buf).Encode(TemplateMessageRequest{
 		To:   to,
 		Type: "template",
 		Template: Template{
@@ -94,7 +81,7 @@ func (c *ClientWrapper) SendSignupTemplate(to string, token string) error {
 func (c *ClientWrapper) Send(to string, message string) error {
 
 	var buf bytes.Buffer
-	err := json.NewEncoder(&buf).Encode(MessageRequest{
+	err := json.NewEncoder(&buf).Encode(TextMessageRequest{
 		MessagingProduct: "whatsapp",
 		RecipientType:    "individual",
 		To:               to,
