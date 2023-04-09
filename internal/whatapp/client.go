@@ -32,27 +32,7 @@ func NewClientWrapper() Client {
 func (c *ClientWrapper) SendSignupTemplate(to string, token string) error {
 
 	var buf bytes.Buffer
-	err := json.NewEncoder(&buf).Encode(TemplateMessageRequest{
-		MessagingProduct: "whatsapp",
-		To:               to,
-		Type:             "template",
-		Template: Template{
-			Name: "signup",
-			Language: Language{
-				Policy: "deterministic",
-				Code:   "he",
-			},
-			Components: []Components{{
-				Type:    "button",
-				SubType: "url",
-				Index:   "0",
-				Parameters: []Parameters{{
-					Type: "text",
-					Text: token,
-				}},
-			}},
-		},
-	})
+	err := json.NewEncoder(&buf).Encode(newTemplate("signup", to, token))
 	if err != nil {
 		log.Errorf("failed to encode whatsapp sigunup message request with '%v' target phone '%s'", err, to)
 		return err
@@ -64,18 +44,7 @@ func (c *ClientWrapper) SendSignupTemplate(to string, token string) error {
 func (c *ClientWrapper) SendVerifyTemplate(to string) error {
 
 	var buf bytes.Buffer
-	err := json.NewEncoder(&buf).Encode(TemplateMessageRequest{
-		MessagingProduct: "whatsapp",
-		To:               to,
-		Type:             "template",
-		Template: Template{
-			Name: "verify",
-			Language: Language{
-				Policy: "deterministic",
-				Code:   "he",
-			},
-		},
-	})
+	err := json.NewEncoder(&buf).Encode(newTemplate("verify", to, ""))
 	if err != nil {
 		log.Errorf("failed to encode whatsapp verify message request with '%v' target phone '%s'", err, to)
 		return err
@@ -132,4 +101,34 @@ func send(from string, to string, body io.Reader, auth string) error {
 	}
 
 	return nil
+}
+
+func newTemplate(name string, to string, componentParam string) TemplateMessageRequest {
+
+	res := TemplateMessageRequest{
+		MessagingProduct: "whatsapp",
+		To:               to,
+		Type:             "template",
+		Template: Template{
+			Name: name,
+			Language: Language{
+				Policy: "deterministic",
+				Code:   "he",
+			},
+		},
+	}
+
+	if componentParam != "" {
+		res.Template.Components = []Components{{
+			Type:    "button",
+			SubType: "url",
+			Index:   "0",
+			Parameters: []Parameters{{
+				Type: "text",
+				Text: componentParam,
+			}},
+		}}
+	}
+
+	return res
 }
