@@ -14,6 +14,7 @@ import (
 type Client interface {
 	Send(phone string, body string) error
 	SendSignupTemplate(phone string, token string) error
+	SendVerifyTemplate(phone string) error
 }
 
 type ClientWrapper struct {
@@ -35,12 +36,11 @@ func (c *ClientWrapper) SendSignupTemplate(to string, token string) error {
 		To:   to,
 		Type: "template",
 		Template: Template{
-			Namespace: "",
+			Name: "signup2",
 			Language: Language{
 				Policy: "deterministic",
 				Code:   "he",
 			},
-			Name: "signup2",
 			Components: []Components{{
 				Type:    "button",
 				SubType: "url",
@@ -54,6 +54,28 @@ func (c *ClientWrapper) SendSignupTemplate(to string, token string) error {
 	})
 	if err != nil {
 		log.Errorf("failed to encode whatsapp sigunup message request with '%v' target phone '%s'", err, to)
+		return err
+	}
+
+	return send(c.from, to, &buf, c.auth)
+}
+
+func (c *ClientWrapper) SendVerifyTemplate(to string) error {
+
+	var buf bytes.Buffer
+	err := json.NewEncoder(&buf).Encode(TemplateMessageRequest{
+		To:   to,
+		Type: "template",
+		Template: Template{
+			Name: "verify2",
+			Language: Language{
+				Policy: "deterministic",
+				Code:   "he",
+			},
+		},
+	})
+	if err != nil {
+		log.Errorf("failed to encode whatsapp verify message request with '%v' target phone '%s'", err, to)
 		return err
 	}
 

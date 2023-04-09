@@ -15,3 +15,5 @@ func (c *InMemoryClient) Send(phone string, body string) error {
 func (c *InMemoryClient) SendSignupTemplate(to string, token string) error {
 	return nil
 }
+
+func (c *InMemoryClient) SendVerifyTemplate(phone string) error { return nil }
