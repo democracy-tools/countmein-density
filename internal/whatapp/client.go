@@ -33,10 +33,11 @@ func (c *ClientWrapper) SendSignupTemplate(to string, token string) error {
 
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(TemplateMessageRequest{
-		To:   to,
-		Type: "template",
+		MessagingProduct: "whatsapp",
+		To:               to,
+		Type:             "template",
 		Template: Template{
-			Name: "signup2",
+			Name: "signup",
 			Language: Language{
 				Policy: "deterministic",
 				Code:   "he",
@@ -64,10 +65,11 @@ func (c *ClientWrapper) SendVerifyTemplate(to string) error {
 
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(TemplateMessageRequest{
-		To:   to,
-		Type: "template",
+		MessagingProduct: "whatsapp",
+		To:               to,
+		Type:             "template",
 		Template: Template{
-			Name: "verify2",
+			Name: "verify",
 			Language: Language{
 				Policy: "deterministic",
 				Code:   "he",

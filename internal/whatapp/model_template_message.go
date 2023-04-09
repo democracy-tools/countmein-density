@@ -1,9 +1,10 @@
 package whatsapp
 
 type TemplateMessageRequest struct {
-	To       string   `json:"to"`
-	Type     string   `json:"type"`
-	Template Template `json:"template"`
+	MessagingProduct string   `json:"messaging_product"`
+	To               string   `json:"to"`
+	Type             string   `json:"type"`
+	Template         Template `json:"template"`
 }
 
 type Language struct {
