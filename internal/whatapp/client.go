@@ -3,6 +3,7 @@ package whatsapp
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -74,11 +75,6 @@ func (c *ClientWrapper) Send(to string, message string) error {
 	return send(c.from, to, &buf, c.auth)
 }
 
-func getMessageUrl(from string) string {
-
-	return fmt.Sprintf("https://graph.facebook.com/v16.0/%s/messages", from)
-}
-
 func send(from string, to string, body io.Reader, auth string) error {
 
 	r, err := http.NewRequest(http.MethodPost, getMessageUrl(from), body)
@@ -96,8 +92,9 @@ func send(from string, to string, body io.Reader, auth string) error {
 		return err
 	}
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated {
-		log.Infof("failed to send whatsapp message to '%s' with '%s'", to, response.Status)
-		return err
+		msg := fmt.Sprintf("failed to send whatsapp message to '%s' with '%s'", to, response.Status)
+		log.Info(msg)
+		return errors.New(msg)
 	}
 
 	return nil
@@ -131,4 +128,9 @@ func newTemplate(name string, to string, componentParam string) TemplateMessageR
 	}
 
 	return res
+}
+
+func getMessageUrl(from string) string {
+
+	return fmt.Sprintf("https://graph.facebook.com/v16.0/%s/messages", from)
 }
