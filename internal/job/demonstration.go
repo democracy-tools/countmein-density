@@ -11,12 +11,12 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func CreateDemonstration() {
+func CreateDemonstration() error {
 
 	dsc := ds.NewClientWrapper(env.Project)
 
 	id := createDemonstrationInDatastore(dsc)
-	inviteVolunteers(dsc, id)
+	return inviteVolunteers(dsc, id)
 }
 
 func inviteVolunteers(dsc ds.Client, id string) error {
@@ -28,10 +28,15 @@ func inviteVolunteers(dsc ds.Client, id string) error {
 	}
 
 	wac := whatsapp.NewClientWrapper()
+	log.Info("Sending invitations...")
 	for _, currUser := range users {
 		link := fmt.Sprintf("%s?user=%s&demonstration=%s", internal.JoinUrl, currUser.Id, id)
-		log.Infof("sending invitation... '%s (%s): %s' link '%s'", currUser.Name, currUser.Id, currUser.Phone, link)
-		wac.Send(currUser.Phone, fmt.Sprintf("היי, רוצה להתנדב לספירה ביום שבת? לחץ על הלינק כדי להצטרף אלינו\n%s", link))
+		log.Infof("%s (%s): %s, %s", currUser.Name, currUser.Id, currUser.Phone, link)
+		err = wac.SendInvitationTemplate(currUser.Phone, id, currUser.Id)
+		if err != nil {
+			return err
+		}
+
 	}
 
 	return nil

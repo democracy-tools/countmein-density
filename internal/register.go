@@ -42,7 +42,9 @@ func (h *Handle) Register(w http.ResponseWriter, r *http.Request) {
 		Time:  time.Now().Unix(),
 	})
 	if err != nil {
-		log.Errorf("failed to create user '%+v' in datastore with '%v'", request, err)
+		msg := fmt.Sprintf("failed to create user '%+v' in datastore with '%v'", request, err)
+		log.Error(msg)
+		email.GetInstance().SendError(msg)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
