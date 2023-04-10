@@ -15,6 +15,7 @@ type singleton struct {
 	smtpHost    string
 	smtpAddress string
 	from        string
+	to          string
 	password    string
 }
 
@@ -31,15 +32,21 @@ func GetInstance() *singleton {
 func newClient() *singleton {
 
 	host := env.GetSmtp()
-	from := env.GetEmailFrom()
-	password := env.GetEmailPassword()
 
 	return &singleton{
 		smtpHost:    host,
 		smtpAddress: fmt.Sprintf("%s:587", host),
-		from:        from,
-		password:    password,
+		from:        env.GetEmailFrom(),
+		to:          env.GetEmailSupport(),
+		password:    env.GetEmailPassword(),
 	}
+}
+
+func (s *singleton) SendError(message string) error {
+
+	auth := smtp.PlainAuth("", s.from, s.password, s.smtpHost)
+	body := []byte(fmt.Sprintf("Subject: [CountMeIn] %s\r\n\r\n%s\r\n", message[:70], message))
+	return smtp.SendMail(fmt.Sprintf("%s:587", s.smtpHost), auth, s.from, []string{s.to}, body)
 }
 
 func (s *singleton) Send(to string, htmlTemplate string, subject string, data any) error {

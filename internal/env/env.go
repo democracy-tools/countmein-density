@@ -20,6 +20,11 @@ func GetSmtp() string {
 	return res
 }
 
+func GetEmailSupport() string {
+
+	return failIfEmpty("EMAIL_SUPPORT")
+}
+
 func GetEmailFrom() string {
 
 	return failIfEmpty("EMAIL_FROM")

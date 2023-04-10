@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
+	"github.com/democracy-tools/countmein-density/internal/email"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -48,6 +49,7 @@ func (h *Handle) Register(w http.ResponseWriter, r *http.Request) {
 
 	err = h.wac.SendSignupTemplate(request.Phone, token)
 	if err != nil {
+		email.GetInstance().SendError(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
