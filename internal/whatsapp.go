@@ -3,6 +3,7 @@ package internal
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	whatsapp "github.com/democracy-tools/countmein-density/internal/whatapp"
 	"github.com/sirupsen/logrus"
@@ -41,7 +42,7 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 		change := payload.Entry[0].Changes[0]
 		if len(change.Value.Messages) == 1 {
 			message := change.Value.Messages[0]
-			if message.Type == "text" && message.Text.Body == "join" {
+			if message.Type == "text" && strings.EqualFold(message.Text.Body, "join") {
 				contact := change.Value.Contacts[0]
 				createUser(h.dsc, h.wac, contact.WaID, contact.Profile.Name, "")
 			}
