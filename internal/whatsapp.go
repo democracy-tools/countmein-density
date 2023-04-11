@@ -31,7 +31,7 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 	var payload whatsapp.WebhookMessage
 	err := json.NewDecoder(r.Body).Decode(&payload)
 	if err != nil {
-		logrus.Infof("failed to decode webhook message with '%v'")
+		logrus.Infof("failed to decode webhook message with '%v'", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

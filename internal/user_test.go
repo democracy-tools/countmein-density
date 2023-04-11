@@ -26,5 +26,5 @@ func TestHandle_CreateUser(t *testing.T) {
 
 	internal.NewHandle(ds.NewInMemoryClient(), whatsapp.NewInMemoryClient()).CreateUser(w, r)
 
-	require.Equal(t, http.StatusOK, w.Result().StatusCode)
+	require.Equal(t, http.StatusCreated, w.Result().StatusCode)
 }
