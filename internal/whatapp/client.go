@@ -55,7 +55,6 @@ func (c *ClientWrapper) SendVerifyTemplate(to string) error {
 	return send(c.from, to, &buf, c.auth)
 }
 
-// ?demonstration=aaa&user=bbb
 func (c *ClientWrapper) SendInvitationTemplate(to string, demonstration string, userId string) error {
 
 	var buf bytes.Buffer

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
+	whatsapp "github.com/democracy-tools/countmein-density/internal/whatapp"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -18,24 +19,29 @@ func (h *Handle) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	w.WriteHeader(createUser(h.dsc, h.wac, request.Phone, request.Name, request.Preference))
+}
+
+func createUser(dsc ds.Client, wac whatsapp.Client, phone string, name string, preference string) int {
+
 	id := uuid.NewString()
-	err := h.dsc.Put(ds.KindUser, id, &ds.User{
+	err := dsc.Put(ds.KindUser, id, &ds.User{
 		Id:         id,
-		Phone:      request.Phone,
-		Name:       request.Name,
-		Preference: request.Preference,
+		Phone:      phone,
+		Name:       name,
+		Preference: preference,
 		Time:       time.Now().Unix(),
 	})
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		return http.StatusInternalServerError
 	}
 
-	err = h.wac.SendVerifyTemplate(request.Phone)
+	err = wac.SendVerifyTemplate(phone)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		return http.StatusInternalServerError
 	}
+
+	return http.StatusCreated
 }
 
 func getRegisterRequest(client ds.Client, r *http.Request) (*ds.RegisterRequest, int) {

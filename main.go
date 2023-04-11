@@ -24,11 +24,11 @@ import (
 func main() {
 
 	const (
-		observations = "/observations"
-		register     = "/register"
-		users        = "/users"
-		join         = "/join"
-		// join         = "/demonstrations/{demonstration-id}/users/{user-id}"
+		observations    = "/observations"
+		register        = "/register"
+		users           = "/users"
+		join            = "/demonstrations/{demonstration-id}/users/{user-id}"
+		whatsappWebhook = "/whatsapp"
 	)
 
 	handle := internal.NewHandle(
@@ -41,21 +41,19 @@ func main() {
 			register, register,
 			users, users,
 			join, join,
+			whatsappWebhook, whatsappWebhook,
 		}, []string{
 			http.MethodPost, http.MethodGet, http.MethodOptions,
 			http.MethodPost, http.MethodOptions,
 			http.MethodPost, http.MethodOptions,
 			http.MethodPost, http.MethodOptions,
+			http.MethodGet, http.MethodPost,
 		}, []func(http.ResponseWriter, *http.Request){
-			access(handle.CreateObservation),
-			access(handle.GetObservations),
-			options([]string{http.MethodPost, http.MethodGet}),
-			access(handle.Register),
-			options([]string{http.MethodPost}),
-			access(handle.CreateUser),
-			options([]string{http.MethodPost}),
-			access(handle.Join),
-			options([]string{http.MethodPost}),
+			access(handle.CreateObservation), access(handle.GetObservations), options([]string{http.MethodPost, http.MethodGet}),
+			access(handle.Register), options([]string{http.MethodPost}),
+			access(handle.CreateUser), options([]string{http.MethodPost}),
+			access(handle.Join), options([]string{http.MethodPost}),
+			handle.WhatsAppVerification, handle.WhatsAppEventHandler,
 		},
 	)
 }

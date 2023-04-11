@@ -35,6 +35,11 @@ func GetEmailPassword() string {
 	return failIfEmpty("EMAIL_PASSWORD")
 }
 
+func GetWhatsAppVerificationToken() string {
+
+	return failIfEmpty("WHATSAPP_VERIFICATION_TOKEN")
+}
+
 func GetWhatAppToken() string {
 
 	return failIfEmpty("WHATSAPP_TOKEN")
