@@ -52,7 +52,7 @@ func createUser(dsc ds.Client, wac whatsapp.Client, phone string, name string, p
 func validateUser(dsc ds.Client, phone string, name string) int {
 
 	var users []ds.User
-	err := dsc.GetFilter(ds.KindRegisterRequest, "phone", "=", phone, &users)
+	err := dsc.GetFilter(ds.KindUser, "phone", "=", phone, &users)
 	if err != nil {
 		log.Errorf("failed to get user %s (%s) with '%v'", name, phone, err)
 		return http.StatusInternalServerError
