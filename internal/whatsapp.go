@@ -77,16 +77,18 @@ func buildMessage(message whatsapp.WebhookMessage) ([]byte, error) {
 	if len(message.Entry) == 1 && len(message.Entry[0].Changes) == 1 {
 		var res bytes.Buffer
 		change := message.Entry[0].Changes[0]
-		contact := change.Value.Contacts[0]
-		res.WriteString(fmt.Sprintf("%s (%s)\n", contact.Profile.Name, contact.WaID))
-		for _, currMessage := range change.Value.Messages {
-			if currMessage.Type == "text" {
-				res.WriteString(fmt.Sprintf("%s\n", currMessage.Text.Body))
-			} else {
-				res.WriteString(fmt.Sprintf("%s\n", currMessage.Type))
+		if len(change.Value.Contacts) == 1 {
+			contact := change.Value.Contacts[0]
+			res.WriteString(fmt.Sprintf("%s (%s)\n", contact.Profile.Name, contact.WaID))
+			for _, currMessage := range change.Value.Messages {
+				if currMessage.Type == "text" {
+					res.WriteString(fmt.Sprintf("%s\n", currMessage.Text.Body))
+				} else {
+					res.WriteString(fmt.Sprintf("%s\n", currMessage.Type))
+				}
 			}
+			return res.Bytes(), nil
 		}
-		return res.Bytes(), nil
 	}
 
 	pretty, err := json.MarshalIndent(message, "", "  ")
