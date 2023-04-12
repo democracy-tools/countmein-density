@@ -24,6 +24,11 @@ func (h *Handle) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 func createUser(dsc ds.Client, wac whatsapp.Client, phone string, name string, preference string) int {
 
+	code := validateUser(dsc, phone, name)
+	if code != http.StatusOK {
+		return code
+	}
+
 	id := uuid.NewString()
 	err := dsc.Put(ds.KindUser, id, &ds.User{
 		Id:         id,
@@ -42,6 +47,22 @@ func createUser(dsc ds.Client, wac whatsapp.Client, phone string, name string, p
 	}
 
 	return http.StatusCreated
+}
+
+func validateUser(dsc ds.Client, phone string, name string) int {
+
+	var users []ds.User
+	err := dsc.GetFilter(ds.KindRegisterRequest, "phone", "=", phone, &users)
+	if err != nil {
+		log.Errorf("failed to get user %s (%s) with '%v'", name, phone, err)
+		return http.StatusInternalServerError
+	}
+	if len(users) > 0 {
+		log.Infof("user %s (%s) already exist", name, phone)
+		return http.StatusBadRequest
+	}
+
+	return http.StatusOK
 }
 
 func getRegisterRequest(client ds.Client, r *http.Request) (*ds.RegisterRequest, int) {

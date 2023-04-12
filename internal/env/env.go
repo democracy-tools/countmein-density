@@ -50,6 +50,11 @@ func GetWhatsAppFromPhone() string {
 	return failIfEmpty("WHATSAPP_FROM_PHONE")
 }
 
+func GetSlackUrl() string {
+
+	return failIfEmpty("SLACK_URL")
+}
+
 func failIfEmpty(key string) string {
 
 	res := os.Getenv(key)

@@ -1,10 +1,13 @@
 package internal
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
+	"github.com/democracy-tools/countmein-density/internal/slack"
 	whatsapp "github.com/democracy-tools/countmein-density/internal/whatapp"
 	"github.com/sirupsen/logrus"
 )
@@ -38,7 +41,7 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	// TODO: notify slack
+	forward(h.slackUrl, payload)
 
 	if len(payload.Entry) == 1 && len(payload.Entry[0].Changes) == 1 {
 		change := payload.Entry[0].Changes[0]
@@ -46,17 +49,52 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 			message := change.Value.Messages[0]
 			if message.Type == "text" && isJoinRequest(message.Text.Body) {
 				contact := change.Value.Contacts[0]
-				createUser(h.dsc, h.wac, contact.WaID, contact.Profile.Name, "")
-				// if code == http.StatusCreated {
-				// 	// TODO: slack
-				// } else {
-				// 	// TODO: slack
-				// }
+				code := createUser(h.dsc, h.wac, contact.WaID, contact.Profile.Name, "")
+				if code == http.StatusCreated {
+					slack.Send(h.slackUrl, fmt.Sprintf("User added: %s (%s)", contact.Profile.Name, contact.WaID))
+				} else {
+					slack.Send(h.slackUrl, fmt.Sprintf("Failed to add user %s (%s) with %d", contact.Profile.Name, contact.WaID, code))
+				}
 			}
 		}
 	}
 
 	w.WriteHeader(http.StatusAccepted)
+}
+
+func forward(slackUrl string, payload whatsapp.WebhookMessage) error {
+
+	pretty, err := buildMessage(payload)
+	if err != nil {
+		return err
+	}
+
+	return slack.Send(slackUrl, string(pretty))
+}
+
+func buildMessage(message whatsapp.WebhookMessage) ([]byte, error) {
+
+	if len(message.Entry) == 1 && len(message.Entry[0].Changes) == 1 {
+		var res bytes.Buffer
+		change := message.Entry[0].Changes[0]
+		contact := change.Value.Contacts[0]
+		res.WriteString(fmt.Sprintf("%s (%s)\n", contact.Profile.Name, contact.WaID))
+		for _, currMessage := range change.Value.Messages {
+			if currMessage.Type == "text" {
+				res.WriteString(fmt.Sprintf("%s\n", currMessage.Text.Body))
+			} else {
+				res.WriteString(fmt.Sprintf("%s\n", currMessage.Type))
+			}
+		}
+		return res.Bytes(), nil
+	}
+
+	pretty, err := json.MarshalIndent(message, "", "  ")
+	if err != nil {
+		logrus.Errorf("failed to marshal whatsapp message with '%v'", err)
+		return nil, err
+	}
+	return pretty, nil
 }
 
 func isJoinRequest(message string) bool {

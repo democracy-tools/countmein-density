@@ -71,5 +71,5 @@ func validateRegisterRequest(dsc ds.Client, request *Register) bool {
 		return false
 	}
 
-	return dsc.GetFilter(ds.KindRegisterRequest, "phone", "=", request.Phone, &[]ds.RegisterRequest{}) == nil
+	return true
 }

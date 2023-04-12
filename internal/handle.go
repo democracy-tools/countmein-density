@@ -10,9 +10,15 @@ type Handle struct {
 	dsc                       ds.Client
 	wac                       whatsapp.Client
 	whatsappVerificationToken string
+	slackUrl                  string
 }
 
 func NewHandle(dsc ds.Client, wac whatsapp.Client) *Handle {
 
-	return &Handle{dsc: dsc, wac: wac, whatsappVerificationToken: env.GetWhatsAppVerificationToken()}
+	return &Handle{
+		dsc:                       dsc,
+		wac:                       wac,
+		whatsappVerificationToken: env.GetWhatsAppVerificationToken(),
+		slackUrl:                  env.GetSlackUrl(),
+	}
 }
