@@ -22,7 +22,7 @@ const (
 	KindPreference      Kind = "preference"
 
 	EnvKeyDatastoreToken = "DATASTORE_KEY"
-	namespace            = "dev"
+	namespace            = "v1"
 )
 
 type Client interface {
