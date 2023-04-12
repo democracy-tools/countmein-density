@@ -18,7 +18,7 @@ type User struct {
 }
 
 type Volunteer struct {
-	Id              string `json:"id" datastore:"id"`
+	UserId          string `json:"user_id" datastore:"user_id"`
 	DemonstrationId string `json:"demonstration_id" datastore:"demonstration_id"`
 	Polygon         string `json:"polygon" datastore:"polygon"`
 	Location        string `json:"location" datastore:"location"`

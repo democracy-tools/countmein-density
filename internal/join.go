@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
+	"github.com/democracy-tools/countmein-density/internal/slack"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
@@ -56,7 +57,7 @@ func (h *Handle) Join(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = h.dsc.Put(ds.KindVolunteer, ds.GetVolunteerId(demonstrationId, userId), &ds.Volunteer{
-		Id:              userId,
+		UserId:          userId,
 		DemonstrationId: demonstrationId,
 		Polygon:         polygon,
 		Location:        location,
@@ -70,6 +71,7 @@ func (h *Handle) Join(w http.ResponseWriter, r *http.Request) {
 	link := fmt.Sprintf("%s?demonstration=%s&user-id=%s&user=%s&polygon=%s&q=%s", ObservationUrl, demonstrationId, userId, url.QueryEscape(user.Name), polygon, location)
 	h.wac.Send(user.Phone, fmt.Sprintf("בהפגנה יש להשתמש בלינק לנווט למיקום ולדווח צפיפות:\n%s", link))
 	log.Infof("volunteer added :) '%s'", link)
+	slack.Send(h.slackUrl, fmt.Sprintf("Volunteer added: %s (%s) location %s", user.Name, user.Phone, polygon))
 }
 
 func getPolygonByPriority(available map[string]string, preferred string) (string, string) {
