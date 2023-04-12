@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -17,8 +16,6 @@ import (
 )
 
 func TestHandle_CreateObservation(t *testing.T) {
-
-	require.NoError(t, os.Setenv("WHATSAPP_VERIFICATION_TOKEN", "123"))
 
 	var buf bytes.Buffer
 	require.NoError(t, json.NewEncoder(&buf).Encode(
