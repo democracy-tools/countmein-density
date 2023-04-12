@@ -45,7 +45,7 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 
 	if len(payload.Entry) == 1 && len(payload.Entry[0].Changes) == 1 {
 		change := payload.Entry[0].Changes[0]
-		if len(change.Value.Messages) == 1 {
+		if len(change.Value.Messages) == 1 && len(change.Value.Contacts) == 1 {
 			message := change.Value.Messages[0]
 			if message.Type == "text" && isJoinRequest(message.Text.Body) {
 				contact := change.Value.Contacts[0]
@@ -63,6 +63,14 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func forward(slackUrl string, payload whatsapp.WebhookMessage) error {
+
+	if len(payload.Entry) == 0 ||
+		len(payload.Entry[0].Changes) == 0 ||
+		len(payload.Entry[0].Changes[0].Value.Contacts) == 0 ||
+		len(payload.Entry[0].Changes[0].Value.Messages) == 0 {
+		logrus.Debug("ignoring whatsapp message with no contacts or no message")
+		return nil
+	}
 
 	pretty, err := buildMessage(payload)
 	if err != nil {
