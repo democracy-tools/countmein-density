@@ -68,10 +68,13 @@ func (h *Handle) Join(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	link := fmt.Sprintf("%s?demonstration=%s&user-id=%s&user=%s&polygon=%s&q=%s", ObservationUrl, demonstrationId, userId, url.QueryEscape(user.Name), polygon, location)
-	h.wac.Send(user.Phone, fmt.Sprintf("בהפגנה יש להשתמש בלינק לנווט למיקום ולדווח צפיפות:\n%s", link))
-	log.Infof("volunteer added :) '%s'", link)
-	slack.Send(h.slackUrl, fmt.Sprintf("Volunteer added: %s (%s) location %s", user.Name, user.Phone, polygon))
+	// link := fmt.Sprintf("%s?demonstration=%s&user-id=%s&user=%s&polygon=%s&q=%s", ObservationUrl, demonstrationId, userId, url.QueryEscape(user.Name), polygon, location)
+	// h.wac.Send(user.Phone, fmt.Sprintf("בהפגנה יש להשתמש בלינק לנווט למיקום ולדווח צפיפות:\n%s", link))
+	h.wac.SendDemonstrationTemplate(user.Phone, demonstrationId, user.Id, url.QueryEscape(user.Name), polygon, location)
+
+	msg := fmt.Sprintf("Volunteer added: %s (%s) polygon %s", user.Name, user.Phone, polygon)
+	log.Info(msg)
+	slack.Send(h.slackUrl, msg)
 }
 
 func getPolygonByPriority(available map[string]string, preferred string) (string, string) {

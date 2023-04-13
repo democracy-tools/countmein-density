@@ -17,6 +17,8 @@ type Client interface {
 	SendSignupTemplate(phone string, token string) error
 	SendVerifyTemplate(phone string) error
 	SendInvitationTemplate(to string, demonstration string, userId string) error
+	SendDemonstrationTemplate(to string, demonstration string, userId string,
+		user string, polygon string, location string) error
 }
 
 type ClientWrapper struct {
@@ -62,6 +64,21 @@ func (c *ClientWrapper) SendInvitationTemplate(to string, demonstration string, 
 		fmt.Sprintf("?demonstration=%s&user=%s", demonstration, userId)))
 	if err != nil {
 		log.Errorf("failed to encode whatsapp attend message request with '%v' phone '%s'", err, to)
+		return err
+	}
+
+	return send(c.from, to, &buf, c.auth)
+}
+
+func (c *ClientWrapper) SendDemonstrationTemplate(to string, demonstration string, userId string,
+	user string, polygon string, location string) error {
+
+	var buf bytes.Buffer
+	err := json.NewEncoder(&buf).Encode(newTemplate("demonstration", to,
+		fmt.Sprintf("?demonstration=%s&user-id=%s&user=%s&polygon=%s&q=%s",
+			demonstration, userId, user, polygon, location)))
+	if err != nil {
+		log.Errorf("failed to encode whatsapp demonstration message request with '%v' user '%s (%s)'", err, user, userId)
 		return err
 	}
 
