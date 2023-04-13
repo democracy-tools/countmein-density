@@ -1,6 +1,7 @@
 package job
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
@@ -10,16 +11,20 @@ import (
 
 func TestUpdateUserPreference(t *testing.T) {
 
+	// env.Initialize()
 	t.Skip("infra")
 	dsc := ds.NewClientWrapper(env.Project)
-	updateUserPreference(t, dsc, "123", "A14")
+	updateUserPreference(t, dsc, "+972 12-345-6789", "W13")
 }
 
 func updateUserPreference(t *testing.T, dsc ds.Client, phone string, preference string) {
 
+	phone = phoneConvention(t, phone)
+
 	var users []ds.User
-	require.NoError(t, dsc.GetFilter(ds.KindUser, "phone", "=", phone, users), phone)
+	require.NoError(t, dsc.GetFilter(ds.KindUser, "phone", "=", phone, &users), phone)
 	require.Len(t, users, 1)
+	
 	require.NoError(t, dsc.Put(ds.KindUser, users[0].Id, &ds.User{
 		Id:         users[0].Id,
 		Name:       users[0].Name,
@@ -27,4 +32,12 @@ func updateUserPreference(t *testing.T, dsc ds.Client, phone string, preference 
 		Preference: preference,
 		Time:       users[0].Time,
 	}), phone)
+}
+
+func phoneConvention(t *testing.T, phone string) string {
+
+	phone = strings.ReplaceAll(strings.ReplaceAll(strings.TrimPrefix(phone, "+"), " ", ""), "-", "")
+	require.Len(t, phone, 12)
+
+	return phone
 }
