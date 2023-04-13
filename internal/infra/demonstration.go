@@ -31,12 +31,11 @@ func inviteVolunteers(dsc ds.Client, id string) error {
 	log.Info("Sending invitations...")
 	for _, currUser := range users {
 		link := fmt.Sprintf("%s?user=%s&demonstration=%s", internal.JoinUrl, currUser.Id, id)
-		log.Infof("%s (%s): %s, %s", currUser.Name, currUser.Id, currUser.Phone, link)
+		log.Infof("%s (%s): %s\n%s", currUser.Name, currUser.Id, currUser.Phone, link)
 		err = wac.SendInvitationTemplate(currUser.Phone, id, currUser.Id)
 		if err != nil {
 			return err
 		}
-
 	}
 
 	return nil
