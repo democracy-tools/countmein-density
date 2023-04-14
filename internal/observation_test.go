@@ -45,7 +45,7 @@ func TestHandle_GetObservations(t *testing.T) {
 	dsc := ds.NewInMemoryClient().(*ds.InMemoryClient)
 	now := time.Now().Unix()
 	dsc.SetGetFilterDelegate(
-		func(kind ds.Kind, filterFieldName string, filterOperator string, filterValue interface{}, dst interface{}) error {
+		func(kind ds.Kind, filters []ds.FilterField, dst interface{}) error {
 			reflect.ValueOf(dst).Elem().Set(reflect.ValueOf([]internal.Observation{
 				{
 					Time:    now - 10,

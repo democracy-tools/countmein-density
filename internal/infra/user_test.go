@@ -22,9 +22,9 @@ func updateUserPreference(t *testing.T, dsc ds.Client, phone string, preference 
 	phone = phoneConvention(t, phone)
 
 	var users []ds.User
-	require.NoError(t, dsc.GetFilter(ds.KindUser, "phone", "=", phone, &users), phone)
+	require.NoError(t, dsc.GetFilter(ds.KindUser, []ds.FilterField{{Name: "phone", Operator: "=", Value: phone}}, &users), phone)
 	require.Len(t, users, 1)
-	
+
 	require.NoError(t, dsc.Put(ds.KindUser, users[0].Id, &ds.User{
 		Id:         users[0].Id,
 		Name:       users[0].Name,

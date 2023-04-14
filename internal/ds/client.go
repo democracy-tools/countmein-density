@@ -25,10 +25,16 @@ const (
 	namespace            = "v1"
 )
 
+type FilterField struct {
+	Name     string
+	Operator string
+	Value    interface{}
+}
+
 type Client interface {
 	Get(kind Kind, id string, dst interface{}) error
 	GetAll(kind Kind, dst interface{}) error
-	GetFilter(kind Kind, filterFieldName string, filterOperator string, filterValue interface{}, dst interface{}) error
+	GetFilter(kind Kind, filters []FilterField, dst interface{}) error
 	Put(kind Kind, id string, src interface{}) error
 }
 
@@ -84,13 +90,16 @@ func (c *ClientWrapper) GetAll(kind Kind, dst interface{}) error {
 	return err
 }
 
-func (c *ClientWrapper) GetFilter(kind Kind, filterFieldName string, filterOperator string, filterValue interface{}, dst interface{}) error {
+func (c *ClientWrapper) GetFilter(kind Kind, filters []FilterField, dst interface{}) error {
 
-	q := datastore.NewQuery(string(kind)).Namespace(namespace).FilterField(filterFieldName, filterOperator, filterValue)
+	q := datastore.NewQuery(string(kind)).Namespace(namespace)
+	for _, currFilter := range filters {
+		q = q.FilterField(currFilter.Name, currFilter.Operator, currFilter.Value)
+	}
 	_, err := c.ds.GetAll(context.Background(), q, dst)
 	if err != nil {
-		msg := fmt.Sprintf("failed to get with filter '%s %s %v' kind '%s' from datastore namespace '%s' with '%v'",
-			filterFieldName, filterOperator, filterValue, kind, namespace, err)
+		msg := fmt.Sprintf("failed to get with filter '%+v' kind '%s' from datastore namespace '%s' with '%v'",
+			filters, kind, namespace, err)
 		if IsNoSuchEntityError(err) {
 			log.Debug(msg)
 		} else {
