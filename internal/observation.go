@@ -15,12 +15,13 @@ import (
 )
 
 type Observation struct {
-	Time      int64   `json:"time" datastore:"time"`
-	User      string  `json:"user" datastore:"user"`
-	Polygon   string  `json:"polygon" datastore:"polygon"`
-	Density   float32 `json:"density" datastore:"density"`
-	Latitude  float32 `json:"latitude" datastore:"latitude"`
-	Longitude float32 `json:"longitude" datastore:"longitude"`
+	Time          int64   `json:"time" datastore:"time"`
+	User          string  `json:"user_id" datastore:"user_id"`
+	Demonstration string  `json:"demonstration" datastore:"demonstration"`
+	Polygon       string  `json:"polygon" datastore:"polygon"`
+	Density       float32 `json:"density" datastore:"density"`
+	Latitude      float32 `json:"latitude" datastore:"latitude"`
+	Longitude     float32 `json:"longitude" datastore:"longitude"`
 }
 
 func (h *Handle) CreateObservation(w http.ResponseWriter, r *http.Request) {
