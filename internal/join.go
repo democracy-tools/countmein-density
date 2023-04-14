@@ -22,8 +22,9 @@ func (h *Handle) Join(w http.ResponseWriter, r *http.Request) {
 	demonstrationId := params["demonstration-id"]
 	userId := params["user-id"]
 
-	if !validateToken(demonstrationId) || !validateToken(userId) {
-		w.WriteHeader(http.StatusBadRequest)
+	code := validateJoin(h.dsc, demonstrationId, userId)
+	if code != http.StatusOK {
+		w.WriteHeader(code)
 		return
 	}
 
@@ -77,6 +78,30 @@ func (h *Handle) Join(w http.ResponseWriter, r *http.Request) {
 	msg := fmt.Sprintf("Volunteer added: %s (%s) polygon %s", user.Name, user.Phone, polygon)
 	log.Info(msg)
 	slack.Send(h.slackUrl, msg)
+}
+
+func validateJoin(dsc ds.Client, demonstrationId, userId string) int {
+
+	if !validateToken(demonstrationId) || !validateToken(userId) {
+		return http.StatusBadRequest
+	}
+
+	var volunteers []ds.Volunteer
+	err := dsc.GetFilter(ds.KindVolunteer,
+		[]ds.FilterField{
+			{Name: "demonstration", Operator: "=", Value: demonstrationId},
+			{Name: "user_id", Operator: "=", Value: userId},
+		},
+		volunteers)
+	if err != nil {
+		return http.StatusInternalServerError
+	}
+	if len(volunteers) > 0 {
+		log.Infof("user '%s' tried to volunteer to demonstration '%s' more than once", userId, demonstrationId)
+		return http.StatusBadRequest
+	}
+
+	return http.StatusOK
 }
 
 func getPolygonByPriority(available map[string]string, preferred string) (string, string) {
