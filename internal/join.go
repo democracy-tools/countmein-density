@@ -80,21 +80,21 @@ func (h *Handle) Join(w http.ResponseWriter, r *http.Request) {
 	slack.Send(h.slackUrl, msg)
 }
 
-func validateJoin(dsc ds.Client, demonstrationId, userId string) int {
+func validateJoin(dsc ds.Client, demonstrationId string, userId string) int {
 
 	if !validateToken(demonstrationId) || !validateToken(userId) {
 		return http.StatusBadRequest
 	}
 
-	var volunteers []ds.Volunteer
-	err := dsc.Get(ds.KindVolunteer, ds.GetVolunteerId(demonstrationId, userId), &volunteers)
-	if err != nil {
-		return http.StatusInternalServerError
-	}
-	if len(volunteers) > 0 {
-		log.Infof("user '%s' tried to volunteer to demonstration '%s' more than once", userId, demonstrationId)
-		return http.StatusBadRequest
-	}
+	// var volunteers []ds.Volunteer
+	// err := dsc.Get(ds.KindVolunteer, ds.GetVolunteerId(demonstrationId, userId), &volunteers)
+	// if err != nil {
+	// 	return http.StatusInternalServerError
+	// }
+	// if len(volunteers) > 0 {
+	// 	log.Infof("user '%s' tried to volunteer to demonstration '%s' more than once", userId, demonstrationId)
+	// 	return http.StatusBadRequest
+	// }
 
 	return http.StatusOK
 }
