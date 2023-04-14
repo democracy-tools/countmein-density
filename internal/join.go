@@ -68,9 +68,11 @@ func (h *Handle) Join(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// link := fmt.Sprintf("%s?demonstration=%s&user-id=%s&user=%s&polygon=%s&q=%s", ObservationUrl, demonstrationId, userId, url.QueryEscape(user.Name), polygon, location)
-	// h.wac.Send(user.Phone, fmt.Sprintf("בהפגנה יש להשתמש בלינק לנווט למיקום ולדווח צפיפות:\n%s", link))
-	h.wac.SendDemonstrationTemplate(user.Phone, demonstrationId, user.Id, url.QueryEscape(user.Name), polygon, location)
+	err = h.wac.SendDemonstrationTemplate(user.Phone, demonstrationId, user.Id, url.QueryEscape(user.Name), polygon, location)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	msg := fmt.Sprintf("Volunteer added: %s (%s) polygon %s", user.Name, user.Phone, polygon)
 	log.Info(msg)

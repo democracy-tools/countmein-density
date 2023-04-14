@@ -110,5 +110,6 @@ func buildMessage(message whatsapp.WebhookMessage) ([]byte, error) {
 func isJoinRequest(message string) bool {
 
 	message = strings.ReplaceAll(message, " ", "")
-	return strings.EqualFold(message, "join") || message == "קפלן"
+	return strings.EqualFold(message, "join") || message == "קפלן" ||
+		message == "אני רוצה להתנדב בספירת המפגינים בקפלן"
 }
