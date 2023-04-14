@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
-	"github.com/democracy-tools/countmein-density/internal/email"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -44,14 +43,12 @@ func (h *Handle) Register(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		msg := fmt.Sprintf("failed to create user '%+v' in datastore with '%v'", request, err)
 		log.Error(msg)
-		email.GetInstance().SendError(msg)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	err = h.wac.SendSignupTemplate(request.Phone, token)
 	if err != nil {
-		email.GetInstance().SendError(err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
