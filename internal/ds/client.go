@@ -76,7 +76,12 @@ func NewClientWrapper(project string) Client {
 
 func (c *ClientWrapper) Get(kind Kind, id string, dst interface{}) error {
 
-	return c.ds.Get(context.Background(), getKey(kind, id), dst)
+	err := c.ds.Get(context.Background(), getKey(kind, id), dst)
+	if err != nil {
+		log.Errorf("failed to get '%s' id '%s' from datastore namespace '%s' with '%v'", kind, id, namespace, err)
+	}
+
+	return err
 }
 
 func (c *ClientWrapper) GetAll(kind Kind, dst interface{}) error {
