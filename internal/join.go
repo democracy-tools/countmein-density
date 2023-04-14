@@ -75,7 +75,7 @@ func (h *Handle) Join(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	msg := fmt.Sprintf("Volunteer added: %s (%s) polygon %s", user.Name, user.Phone, polygon)
+	msg := fmt.Sprintf("Volunteer added: %s (%s) polygon %s demonstration %s", user.Name, user.Phone, polygon, demonstrationId)
 	log.Info(msg)
 	slack.Send(h.slackUrl, msg)
 }
