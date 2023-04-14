@@ -87,12 +87,7 @@ func validateJoin(dsc ds.Client, demonstrationId, userId string) int {
 	}
 
 	var volunteers []ds.Volunteer
-	err := dsc.GetFilter(ds.KindVolunteer,
-		[]ds.FilterField{
-			{Name: "demonstration", Operator: "=", Value: demonstrationId},
-			{Name: "user_id", Operator: "=", Value: userId},
-		},
-		&volunteers)
+	err := dsc.Get(ds.KindVolunteer, ds.GetVolunteerId(demonstrationId, userId), &volunteers)
 	if err != nil {
 		return http.StatusInternalServerError
 	}
