@@ -92,7 +92,7 @@ func validateJoin(dsc ds.Client, demonstrationId, userId string) int {
 			{Name: "demonstration", Operator: "=", Value: demonstrationId},
 			{Name: "user_id", Operator: "=", Value: userId},
 		},
-		volunteers)
+		&volunteers)
 	if err != nil {
 		return http.StatusInternalServerError
 	}
