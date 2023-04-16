@@ -29,12 +29,12 @@ func NewClientWrapper() Client {
 
 func (c *ClientWrapper) Debug(message string) error {
 
-	return send(c.info, message)
+	return send(c.debug, message)
 }
 
 func (c *ClientWrapper) Info(message string) error {
 
-	return send(c.debug, message)
+	return send(c.info, message)
 }
 
 func send(channelHook string, message string) error {
