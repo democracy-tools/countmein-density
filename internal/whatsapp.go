@@ -88,7 +88,7 @@ func forward(sc slack.Client, payload whatsapp.WebhookMessage) error {
 		return err
 	}
 
-	return sc.Debug(string(pretty))
+	return sc.Info(string(pretty))
 }
 
 func buildMessage(message whatsapp.WebhookMessage) ([]byte, error) {
