@@ -8,7 +8,8 @@ import (
 func init() {
 
 	fatalOnSetEnvErr(os.Setenv("WHATSAPP_VERIFICATION_TOKEN", "123"))
-	fatalOnSetEnvErr(os.Setenv("SLACK_URL", "123"))
+	fatalOnSetEnvErr(os.Setenv("SLACK_INFO_URL", "123"))
+	fatalOnSetEnvErr(os.Setenv("SLACK_DEBUG_URL", "567"))
 }
 
 func fatalOnSetEnvErr(err error) {
