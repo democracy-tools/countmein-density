@@ -14,10 +14,14 @@ func GetUserByPhone(dsc Client, phone string) (*User, error) {
 		logrus.Errorf("failed to get user by phone '%s' with '%v'", phone, err)
 		return nil, err
 	}
-	if len(users) > 1 {
+	count := len(users)
+	if count > 1 {
 		err := fmt.Errorf("more than 1 user with the same phone '%s'", phone)
 		logrus.Error(err.Error())
 		return nil, err
+	}
+	if count == 1 {
+		return &users[0], nil
 	}
 
 	return nil, nil
