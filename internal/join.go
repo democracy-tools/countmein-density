@@ -101,13 +101,15 @@ func validateJoin(dsc ds.Client, demonstrationId string, userId string) int {
 
 func getPolygonByPriority(available map[string]string, preferred string) (string, string) {
 
-	res, ok := available[preferred]
-	if ok {
-		return preferred, res
+	if preferred != "" {
+		res, ok := available[preferred]
+		if ok {
+			return preferred, res
+		}
 	}
 
 	for _, currPolygon := range priority {
-		res, ok = available[currPolygon]
+		res, ok := available[currPolygon]
 		if ok {
 			return currPolygon, res
 		}
