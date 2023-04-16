@@ -103,7 +103,7 @@ func buildMessage(message whatsapp.WebhookMessage) ([]byte, error) {
 				if currMessage.Type == whatsapp.TypeText {
 					res.WriteString(fmt.Sprintf("%s\n", currMessage.Text.Body))
 				} else if currMessage.Type == whatsapp.TypeButton {
-					res.WriteString(fmt.Sprintf("%s\n", currMessage.Button.Text))
+					res.WriteString(fmt.Sprintf("%s %s\n", currMessage.Button.Text, currMessage.Button.Payload))
 				} else {
 					res.WriteString(fmt.Sprintf("%s\n", currMessage.Type))
 				}
