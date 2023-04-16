@@ -1,5 +1,10 @@
 package whatsapp
 
+const (
+	TypeText   = "text"
+	TypeButton = "button"
+)
+
 type WebhookMessage struct {
 	Object string `json:"object"`
 	Entry  []struct {

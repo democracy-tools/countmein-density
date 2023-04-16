@@ -48,7 +48,7 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 		if len(change.Value.Messages) == 1 && len(change.Value.Contacts) == 1 {
 			contact := change.Value.Contacts[0]
 			message := change.Value.Messages[0]
-			if message.Type == "text" {
+			if message.Type == whatsapp.TypeText {
 				if isJoinRequest(message.Text.Body) {
 					code := createUser(h.dsc, h.wac, contact.WaID, contact.Profile.Name, "")
 					if code == http.StatusCreated {
@@ -57,7 +57,7 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 						h.sc.Info(fmt.Sprintf("Failed to add user %s (%s) with %d", contact.Profile.Name, contact.WaID, code))
 					}
 				}
-			} else if message.Type == "button" {
+			} else if message.Type == whatsapp.TypeButton {
 				if isUnsubscribeRequest(message.Button.Text) {
 					err := deleteUser(h.dsc, h.wac, contact.WaID)
 					if err != nil {
@@ -100,8 +100,10 @@ func buildMessage(message whatsapp.WebhookMessage) ([]byte, error) {
 			contact := change.Value.Contacts[0]
 			res.WriteString(fmt.Sprintf("%s (%s)\n", contact.Profile.Name, contact.WaID))
 			for _, currMessage := range change.Value.Messages {
-				if currMessage.Type == "text" {
+				if currMessage.Type == whatsapp.TypeText {
 					res.WriteString(fmt.Sprintf("%s\n", currMessage.Text.Body))
+				} else if currMessage.Type == whatsapp.TypeButton {
+					res.WriteString(fmt.Sprintf("%s\n", currMessage.Button.Text))
 				} else {
 					res.WriteString(fmt.Sprintf("%s\n", currMessage.Type))
 				}
