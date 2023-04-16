@@ -46,9 +46,9 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 	if len(payload.Entry) == 1 && len(payload.Entry[0].Changes) == 1 {
 		change := payload.Entry[0].Changes[0]
 		if len(change.Value.Messages) == 1 && len(change.Value.Contacts) == 1 {
+			contact := change.Value.Contacts[0]
 			message := change.Value.Messages[0]
 			if message.Type == "text" {
-				contact := change.Value.Contacts[0]
 				if isJoinRequest(message.Text.Body) {
 					code := createUser(h.dsc, h.wac, contact.WaID, contact.Profile.Name, "")
 					if code == http.StatusCreated {
@@ -56,7 +56,9 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 					} else {
 						h.sc.Info(fmt.Sprintf("Failed to add user %s (%s) with %d", contact.Profile.Name, contact.WaID, code))
 					}
-				} else if isUnsubscribeRequest(message.Text.Body) {
+				}
+			} else if message.Type == "button" {
+				if isUnsubscribeRequest(message.Button.Text) {
 					err := deleteUser(h.dsc, h.wac, contact.WaID)
 					if err != nil {
 						h.sc.Info(fmt.Sprintf("Failed to delete user %s (%s) with %v", contact.Profile.Name, contact.WaID, err))
