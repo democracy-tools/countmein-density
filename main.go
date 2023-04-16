@@ -24,9 +24,7 @@ import (
 func main() {
 
 	const (
-		observations = "/observations"
-		// register        = "/register"
-		// users           = "/users"
+		observations    = "/observations"
 		join            = "/demonstrations/{demonstration-id}/users/{user-id}"
 		whatsappWebhook = "/whatsapp"
 	)
@@ -38,20 +36,14 @@ func main() {
 	serve(
 		[]string{
 			observations, observations, observations,
-			// register, register,
-			// users, users,
 			join, join,
 			whatsappWebhook, whatsappWebhook,
 		}, []string{
 			http.MethodPost, http.MethodGet, http.MethodOptions,
-			// http.MethodPost, http.MethodOptions,
-			// http.MethodPost, http.MethodOptions,
 			http.MethodPost, http.MethodOptions,
 			http.MethodGet, http.MethodPost,
 		}, []func(http.ResponseWriter, *http.Request){
 			access(handle.CreateObservation), access(handle.GetObservations), options([]string{http.MethodPost, http.MethodGet}),
-			// access(handle.Register), options([]string{http.MethodPost}),
-			// access(handle.CreateUser), options([]string{http.MethodPost}),
 			access(handle.Join), options([]string{http.MethodPost}),
 			handle.WhatsAppVerification, handle.WhatsAppEventHandler,
 		},

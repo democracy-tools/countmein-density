@@ -36,6 +36,7 @@ type Client interface {
 	GetAll(kind Kind, dst interface{}) error
 	GetFilter(kind Kind, filters []FilterField, dst interface{}) error
 	Put(kind Kind, id string, src interface{}) error
+	Delete(kind Kind, id string) error
 }
 
 type ClientWrapper struct {
@@ -125,6 +126,11 @@ func (c *ClientWrapper) Put(kind Kind, id string, src interface{}) error {
 	}
 
 	return err
+}
+
+func (c *ClientWrapper) Delete(kind Kind, id string) error {
+
+	return c.ds.Delete(context.Background(), getKey(kind, id))
 }
 
 func getKey(kind Kind, id string) *datastore.Key {

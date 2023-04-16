@@ -48,7 +48,7 @@ func (c *ClientWrapper) SendSignupTemplate(to string, token string) error {
 func (c *ClientWrapper) SendVerifyTemplate(to string) error {
 
 	var buf bytes.Buffer
-	err := json.NewEncoder(&buf).Encode(newTemplate("verify", to, ""))
+	err := json.NewEncoder(&buf).Encode(newTemplate("verify5", to, ""))
 	if err != nil {
 		log.Errorf("failed to encode whatsapp verify message request with '%v' phone '%s'", err, to)
 		return err

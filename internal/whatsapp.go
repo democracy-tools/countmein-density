@@ -47,13 +47,22 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 		change := payload.Entry[0].Changes[0]
 		if len(change.Value.Messages) == 1 && len(change.Value.Contacts) == 1 {
 			message := change.Value.Messages[0]
-			if message.Type == "text" && isJoinRequest(message.Text.Body) {
+			if message.Type == "text" {
 				contact := change.Value.Contacts[0]
-				code := createUser(h.dsc, h.wac, contact.WaID, contact.Profile.Name, "")
-				if code == http.StatusCreated {
-					slack.Send(h.slackUrl, fmt.Sprintf("User added: %s (%s)", contact.Profile.Name, contact.WaID))
-				} else {
-					slack.Send(h.slackUrl, fmt.Sprintf("Failed to add user %s (%s) with %d", contact.Profile.Name, contact.WaID, code))
+				if isJoinRequest(message.Text.Body) {
+					code := createUser(h.dsc, h.wac, contact.WaID, contact.Profile.Name, "")
+					if code == http.StatusCreated {
+						slack.Send(h.slackUrl, fmt.Sprintf("User added: %s (%s)", contact.Profile.Name, contact.WaID))
+					} else {
+						slack.Send(h.slackUrl, fmt.Sprintf("Failed to add user %s (%s) with %d", contact.Profile.Name, contact.WaID, code))
+					}
+				} else if isUnsubscribeRequest(message.Text.Body) {
+					err := deleteUser(h.dsc, h.wac, contact.WaID)
+					if err != nil {
+						slack.Send(h.slackUrl, fmt.Sprintf("Failed to delete user %s (%s) with %v", contact.Profile.Name, contact.WaID, err))
+					} else {
+						slack.Send(h.slackUrl, fmt.Sprintf("User deleted: %s (%s)", contact.Profile.Name, contact.WaID))
+					}
 				}
 			}
 		}
@@ -105,6 +114,11 @@ func buildMessage(message whatsapp.WebhookMessage) ([]byte, error) {
 		return nil, err
 	}
 	return pretty, nil
+}
+
+func isUnsubscribeRequest(message string) bool {
+
+	return message == "בבקשה להסיר אותי"
 }
 
 func isJoinRequest(message string) bool {

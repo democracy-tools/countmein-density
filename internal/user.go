@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -11,15 +11,19 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func (h *Handle) CreateUser(w http.ResponseWriter, r *http.Request) {
+func deleteUser(dsc ds.Client, wac whatsapp.Client, phone string) error {
 
-	request, code := getRegisterRequest(h.dsc, r)
-	if code != http.StatusOK {
-		w.WriteHeader(code)
-		return
+	user, err := ds.GetUserByPhone(dsc, phone)
+	if err != nil {
+		return err
+	}
+	if user == nil {
+		err = fmt.Errorf("user with phone '%s' not found", phone)
+		log.Info(err.Error())
+		return err
 	}
 
-	w.WriteHeader(createUser(h.dsc, h.wac, request.Phone, request.Name, request.Preference))
+	return dsc.Delete(ds.KindUser, user.Id)
 }
 
 func createUser(dsc ds.Client, wac whatsapp.Client, phone string, name string, preference string) int {
@@ -51,55 +55,14 @@ func createUser(dsc ds.Client, wac whatsapp.Client, phone string, name string, p
 
 func validateUser(dsc ds.Client, phone string, name string) int {
 
-	var users []ds.User
-	err := dsc.GetFilter(ds.KindUser, []ds.FilterField{{Name: "phone", Operator: "=", Value: phone}}, &users)
+	user, err := ds.GetUserByPhone(dsc, phone)
 	if err != nil {
-		log.Errorf("failed to get user %s (%s) with '%v'", name, phone, err)
 		return http.StatusInternalServerError
 	}
-	if len(users) > 0 {
+	if user != nil {
 		log.Infof("user %s (%s) already exist", name, phone)
 		return http.StatusBadRequest
 	}
 
 	return http.StatusOK
-}
-
-func getRegisterRequest(client ds.Client, r *http.Request) (*ds.RegisterRequest, int) {
-
-	var request struct {
-		Token string `json:"token"`
-	}
-	err := json.NewDecoder(r.Body).Decode(&request)
-	if err != nil {
-		log.Infof("failed to decode create user request with '%v'", err)
-		return nil, http.StatusBadRequest
-	}
-	if !validateToken(request.Token) {
-		return nil, http.StatusBadRequest
-	}
-
-	var res ds.RegisterRequest
-	err = client.Get(ds.KindRegisterRequest, request.Token, &res)
-	if err != nil {
-		if ds.IsNoSuchEntityError(err) {
-			log.Infof("'%s' with token '%s' not found", ds.KindRegisterRequest, request.Token)
-			return nil, http.StatusBadRequest
-		}
-		log.Errorf("failed to get '%s' from datastore with '%v'", ds.KindRegisterRequest, err)
-		return nil, http.StatusInternalServerError
-	}
-
-	return &res, http.StatusOK
-}
-
-func validateToken(token string) bool {
-
-	count := len(token)
-	if count < 30 || count > 40 {
-		log.Infof("invalid token length '%d'", count)
-		return false
-	}
-
-	return true
 }
