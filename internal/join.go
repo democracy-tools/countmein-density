@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
-	"github.com/democracy-tools/countmein-density/internal/slack"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
@@ -77,7 +76,7 @@ func (h *Handle) Join(w http.ResponseWriter, r *http.Request) {
 
 	msg := fmt.Sprintf("Volunteer added: %s (%s) polygon %s demonstration %s", user.Name, user.Phone, polygon, demonstrationId)
 	log.Info(msg)
-	slack.Send(h.slackUrl, msg)
+	h.sc.Info(msg)
 }
 
 func validateJoin(dsc ds.Client, demonstrationId string, userId string) int {

@@ -5,10 +5,39 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/democracy-tools/countmein-density/internal/env"
 	"github.com/sirupsen/logrus"
 )
 
-func Send(channelHook string, message string) error {
+type Client interface {
+	Info(message string) error
+	Debug(message string) error
+}
+
+type ClientWrapper struct {
+	info  string
+	debug string
+}
+
+func NewClientWrapper() Client {
+
+	return &ClientWrapper{
+		info:  env.GetSlackInfoUrl(),
+		debug: env.GetSlackDebugUrl(),
+	}
+}
+
+func (c *ClientWrapper) Debug(message string) error {
+
+	return send(c.info, message)
+}
+
+func (c *ClientWrapper) Info(message string) error {
+
+	return send(c.debug, message)
+}
+
+func send(channelHook string, message string) error {
 
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(struct {

@@ -41,7 +41,7 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	forward(h.slackUrl, payload)
+	forward(h.sc, payload)
 
 	if len(payload.Entry) == 1 && len(payload.Entry[0].Changes) == 1 {
 		change := payload.Entry[0].Changes[0]
@@ -52,16 +52,16 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 				if isJoinRequest(message.Text.Body) {
 					code := createUser(h.dsc, h.wac, contact.WaID, contact.Profile.Name, "")
 					if code == http.StatusCreated {
-						slack.Send(h.slackUrl, fmt.Sprintf("User added: %s (%s)", contact.Profile.Name, contact.WaID))
+						h.sc.Info(fmt.Sprintf("User added: %s (%s)", contact.Profile.Name, contact.WaID))
 					} else {
-						slack.Send(h.slackUrl, fmt.Sprintf("Failed to add user %s (%s) with %d", contact.Profile.Name, contact.WaID, code))
+						h.sc.Info(fmt.Sprintf("Failed to add user %s (%s) with %d", contact.Profile.Name, contact.WaID, code))
 					}
 				} else if isUnsubscribeRequest(message.Text.Body) {
 					err := deleteUser(h.dsc, h.wac, contact.WaID)
 					if err != nil {
-						slack.Send(h.slackUrl, fmt.Sprintf("Failed to delete user %s (%s) with %v", contact.Profile.Name, contact.WaID, err))
+						h.sc.Info(fmt.Sprintf("Failed to delete user %s (%s) with %v", contact.Profile.Name, contact.WaID, err))
 					} else {
-						slack.Send(h.slackUrl, fmt.Sprintf("User deleted: %s (%s)", contact.Profile.Name, contact.WaID))
+						h.sc.Info(fmt.Sprintf("User deleted: %s (%s)", contact.Profile.Name, contact.WaID))
 					}
 				}
 			}
@@ -71,7 +71,7 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
-func forward(slackUrl string, payload whatsapp.WebhookMessage) error {
+func forward(sc slack.Client, payload whatsapp.WebhookMessage) error {
 
 	if len(payload.Entry) == 0 ||
 		len(payload.Entry[0].Changes) == 0 ||
@@ -86,7 +86,7 @@ func forward(slackUrl string, payload whatsapp.WebhookMessage) error {
 		return err
 	}
 
-	return slack.Send(slackUrl, string(pretty))
+	return sc.Debug(string(pretty))
 }
 
 func buildMessage(message whatsapp.WebhookMessage) ([]byte, error) {
