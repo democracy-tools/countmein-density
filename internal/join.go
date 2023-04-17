@@ -2,12 +2,10 @@ package internal
 
 import (
 	"fmt"
-	"net/http"
 	"net/url"
 	"time"
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
-	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -15,87 +13,56 @@ var priority = []string{"A5", "A4", "A3", "A13", "A12", "A11", "A7", "A8", "A10"
 	"A20", "A24", "A23", "A14", "A17", "K1", "K2", "K3", "K4", "K5", "K6", "K7", "K9", "K10", "K11",
 	"K12", "K13", "K14", "K19", "K20", "K21", "K22", "K26"}
 
-func (h *Handle) Join(w http.ResponseWriter, r *http.Request) {
+func (h *Handle) join(phone string) error {
 
-	params := mux.Vars(r)
-	demonstrationId := params["demonstration-id"]
-	userId := params["user-id"]
-
-	code := validateJoin(h.dsc, demonstrationId, userId)
-	if code != http.StatusOK {
-		w.WriteHeader(code)
-		return
-	}
-
-	var user ds.User
-	err := h.dsc.Get(ds.KindUser, userId, &user)
+	user, err := ds.GetUserByPhone(h.dsc, phone)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
+		return err
 	}
 
-	available, code := getAvailablePolygons(h.dsc, demonstrationId)
-	if code != http.StatusOK {
-		w.WriteHeader(code)
-		return
+	var demonstration ds.Demonstration
+	err = h.dsc.Get(ds.KindDemonstration, ds.DemonstrationKaplan, &demonstration)
+	if err != nil {
+		return err
+	}
+
+	available, err := getAvailablePolygons(h.dsc, demonstration.Id)
+	if err != nil {
+		return err
 	}
 	if len(available) == 0 {
-		log.Infof("no available polygon found for '%s: %s'", user.Name, user.Phone)
-		w.WriteHeader(http.StatusNotFound)
-		return
+		err = fmt.Errorf("no available polygon found for '%s: %s'", user.Name, user.Phone)
+		log.Info(err.Error())
+		return err
 	}
 
-	preference := r.URL.Query().Get("preference")
-	if preference == "" {
-		preference = user.Preference
-	}
-	polygon, location := getPolygonByPriority(available, preference)
+	polygon, location := getPolygonByPriority(available, user.Preference)
 	if polygon == "" {
 		for polygon, location = range available {
 			break
 		}
 	}
 
-	err = h.dsc.Put(ds.KindVolunteer, ds.GetVolunteerId(demonstrationId, userId), &ds.Volunteer{
-		UserId:          userId,
-		DemonstrationId: demonstrationId,
+	err = h.dsc.Put(ds.KindVolunteer, ds.GetVolunteerId(demonstration.Id, user.Id), &ds.Volunteer{
+		UserId:          user.Id,
+		DemonstrationId: demonstration.Id,
 		Polygon:         polygon,
 		Location:        location,
 		Time:            time.Now().Unix(),
 	})
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		return err
 	}
 
-	err = h.wac.SendDemonstrationTemplate(user.Phone, demonstrationId, user.Id, url.QueryEscape(user.Name), polygon, location)
+	err = h.wac.SendDemonstrationTemplate(user.Phone, demonstration.Id, user.Id, url.QueryEscape(user.Name), polygon, location)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+		return err
 	}
 
-	msg := fmt.Sprintf("Volunteer added: %s (%s) polygon %s demonstration %s", user.Name, user.Phone, polygon, demonstrationId)
+	msg := fmt.Sprintf("Volunteer added: %s (%s) polygon %s demonstration %s (%s)", user.Name, user.Phone, polygon, demonstration.Name, demonstration.Id)
 	log.Info(msg)
 	h.sc.Info(msg)
-}
-
-func validateJoin(dsc ds.Client, demonstrationId string, userId string) int {
-
-	if !validateToken(demonstrationId) || !validateToken(userId) {
-		return http.StatusBadRequest
-	}
-
-	// var volunteers []ds.Volunteer
-	// err := dsc.Get(ds.KindVolunteer, ds.GetVolunteerId(demonstrationId, userId), &volunteers)
-	// if err != nil {
-	// 	return http.StatusInternalServerError
-	// }
-	// if len(volunteers) > 0 {
-	// 	log.Infof("user '%s' tried to volunteer to demonstration '%s' more than once", userId, demonstrationId)
-	// 	return http.StatusBadRequest
-	// }
-
-	return http.StatusOK
+	return nil
 }
 
 func getPolygonByPriority(available map[string]string, preferred string) (string, string) {
@@ -117,7 +84,7 @@ func getPolygonByPriority(available map[string]string, preferred string) (string
 	return "", ""
 }
 
-func getAvailablePolygons(dsc ds.Client, demonstration string) (map[string]string, int) {
+func getAvailablePolygons(dsc ds.Client, demonstration string) (map[string]string, error) {
 
 	res := getPolygons()
 	var volunteers []ds.Volunteer
@@ -125,13 +92,13 @@ func getAvailablePolygons(dsc ds.Client, demonstration string) (map[string]strin
 		[]ds.FilterField{{Name: "demonstration_id", Operator: "=", Value: demonstration}},
 		&volunteers)
 	if err != nil {
-		return nil, http.StatusInternalServerError
+		return nil, err
 	}
 	for _, currVolunteer := range volunteers {
 		delete(res, currVolunteer.Polygon)
 	}
 
-	return res, http.StatusOK
+	return res, nil
 }
 
 func getPolygons() map[string]string {

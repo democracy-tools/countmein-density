@@ -49,7 +49,7 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 			contact := change.Value.Contacts[0]
 			message := change.Value.Messages[0]
 			if message.Type == whatsapp.TypeText {
-				if isJoinRequest(message.Text.Body) {
+				if isRegisterRequest(message.Text.Body) {
 					code := createUser(h.dsc, h.wac, contact.WaID, contact.Profile.Name, "")
 					if code == http.StatusCreated {
 						h.sc.Info(fmt.Sprintf("User added: %s (%s)", contact.Profile.Name, contact.WaID))
@@ -58,12 +58,17 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 			} else if message.Type == whatsapp.TypeButton {
-				if isUnsubscribeRequest(message.Button.Text) {
+				if isUnsubscribeRequestButton(message.Button.Text) {
 					err := deleteUser(h.dsc, h.wac, contact.WaID)
 					if err != nil {
 						h.sc.Info(fmt.Sprintf("Failed to delete user %s (%s) with %v", contact.Profile.Name, contact.WaID, err))
 					} else {
 						h.sc.Info(fmt.Sprintf("User deleted: %s (%s)", contact.Profile.Name, contact.WaID))
+					}
+				} else if isJoinRequestButton(message.Button.Text) {
+					err := h.join(contact.WaID)
+					if err != nil {
+						h.sc.Info(fmt.Sprintf("User %s (%s) failed to join demonstration with %v", contact.Profile.Name, contact.WaID, err))
 					}
 				}
 			}
@@ -120,14 +125,19 @@ func buildMessage(message whatsapp.WebhookMessage) ([]byte, error) {
 	return pretty, nil
 }
 
-func isUnsubscribeRequest(message string) bool {
+func isUnsubscribeRequestButton(message string) bool {
 
 	return message == "בבקשה להסיר אותי"
 }
 
-func isJoinRequest(message string) bool {
+func isRegisterRequest(message string) bool {
 
 	message = strings.ReplaceAll(message, " ", "")
 	return strings.EqualFold(message, "join") || message == "קפלן" ||
 		message == "אנירוצהלהתנדבבספירתהמפגיניםבקפלן"
+}
+
+func isJoinRequestButton(message string) bool {
+
+	return message == "כן, אני בעניין"
 }
