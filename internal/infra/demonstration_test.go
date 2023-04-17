@@ -10,20 +10,25 @@ import (
 	whatsapp "github.com/democracy-tools/countmein-density/internal/whatapp"
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCreateDemonstration(t *testing.T) {
 
 	// env.Initialize()
 	t.Skip("infra")
-	createDemonstration()
+	require.NoError(t, createDemonstration())
 }
 
 func createDemonstration() error {
 
 	dsc := ds.NewClientWrapper(env.Project)
 
-	id := createDemonstrationInDatastore(dsc)
+	id, err := createDemonstrationInDatastore(dsc)
+	if err != nil {
+		return err
+	}
+
 	return inviteVolunteers(dsc, id)
 }
 
@@ -49,10 +54,15 @@ func inviteVolunteers(dsc ds.Client, id string) error {
 	return nil
 }
 
-func createDemonstrationInDatastore(ds.Client) string {
+func createDemonstrationInDatastore(dsc ds.Client) (string, error) {
 
 	id := uuid.NewString()
 	log.Infof("Creating demonstration '%s'...", id)
+	err := dsc.Put(ds.KindDemonstration, ds.DemonstrationKaplan,
+		&ds.Demonstration{Id: id, Name: ds.DemonstrationKaplan})
+	if err != nil {
+		return "", err
+	}
 
-	return id
+	return id, nil
 }

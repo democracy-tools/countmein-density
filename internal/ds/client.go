@@ -20,6 +20,9 @@ const (
 	KindUser            Kind = "user"
 	KindVolunteer       Kind = "volunteer"
 	KindPreference      Kind = "preference"
+	KindDemonstration   Kind = "demonstration"
+
+	DemonstrationKaplan = "kaplan"
 
 	EnvKeyDatastoreToken = "DATASTORE_KEY"
 	namespace            = "v1"

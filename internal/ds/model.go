@@ -2,11 +2,9 @@ package ds
 
 import "fmt"
 
-type RegisterRequest struct {
-	Phone      string `json:"phone" datastore:"phone"`
-	Name       string `json:"name" datastore:"name"`
-	Preference string `json:"preference" datastore:"preference"`
-	Time       int64  `json:"time" datastore:"time"`
+type Demonstration struct {
+	Id   string `json:"id" datastore:"id"`
+	Name string `json:"name" datastore:"name"`
 }
 
 type User struct {
