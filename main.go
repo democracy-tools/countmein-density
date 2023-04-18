@@ -36,7 +36,6 @@ func main() {
 	serve(
 		[]string{
 			observations, observations, observations,
-			join, join,
 			whatsappWebhook, whatsappWebhook,
 		}, []string{
 			http.MethodPost, http.MethodGet, http.MethodOptions,
@@ -44,7 +43,6 @@ func main() {
 			http.MethodGet, http.MethodPost,
 		}, []func(http.ResponseWriter, *http.Request){
 			access(handle.CreateObservation), access(handle.GetObservations), options([]string{http.MethodPost, http.MethodGet}),
-			access(handle.Join), options([]string{http.MethodPost}),
 			handle.WhatsAppVerification, handle.WhatsAppEventHandler,
 		},
 	)
