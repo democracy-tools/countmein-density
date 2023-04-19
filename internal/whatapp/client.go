@@ -9,7 +9,7 @@ import (
 	"net/http"
 
 	"github.com/democracy-tools/countmein-density/internal/env"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 type Client interface {
@@ -39,7 +39,8 @@ func (c *ClientWrapper) SendSignupTemplate(to string, token string) error {
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(newTemplate("signup", to, token, nil))
 	if err != nil {
-		log.Errorf("failed to encode whatsapp sigunup message request with '%v' phone '%s'", err, to)
+		err = fmt.Errorf("failed to encode whatsapp sigunup message request with '%v' phone '%s'", err, to)
+		logrus.Error(err.Error())
 		return err
 	}
 
@@ -51,7 +52,8 @@ func (c *ClientWrapper) SendVerifyTemplate(to string) error {
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(newTemplate("verify5", to, "", nil))
 	if err != nil {
-		log.Errorf("failed to encode whatsapp verify message request with '%v' phone '%s'", err, to)
+		err = fmt.Errorf("failed to encode whatsapp verify message request with '%v' phone '%s'", err, to)
+		logrus.Error(err.Error())
 		return err
 	}
 
@@ -64,7 +66,8 @@ func (c *ClientWrapper) SendInvitationTemplate(to string, demonstration string, 
 	err := json.NewEncoder(&buf).Encode(newTemplate("attend", to,
 		fmt.Sprintf("?demonstration=%s&user=%s", demonstration, userId), nil))
 	if err != nil {
-		log.Errorf("failed to encode whatsapp attend message request with '%v' phone '%s'", err, to)
+		err = fmt.Errorf("failed to encode whatsapp attend message request with '%v' phone '%s'", err, to)
+		logrus.Error(err.Error())
 		return err
 	}
 
@@ -79,7 +82,8 @@ func (c *ClientWrapper) SendDemonstrationTemplate(to string, demonstration strin
 		fmt.Sprintf("?demonstration=%s&user-id=%s&user=%s&polygon=%s&q=%s",
 			demonstration, userId, user, polygon, location), nil))
 	if err != nil {
-		log.Errorf("failed to encode whatsapp demonstration message request with '%v' user '%s (%s)'", err, user, userId)
+		err = fmt.Errorf("failed to encode whatsapp demonstration message request with '%v' user '%s (%s)'", err, user, userId)
+		logrus.Error(err.Error())
 		return err
 	}
 
@@ -91,7 +95,8 @@ func (c *ClientWrapper) SendBodyParamsTemplate(template string, to string, param
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(newTemplate(template, to, "", params))
 	if err != nil {
-		log.Errorf("failed to encode whatsapp thanks message request with '%v' phone '%s'", err, to)
+		err = fmt.Errorf("failed to encode whatsapp body params message request with '%v' phone '%s'", err, to)
+		logrus.Error(err.Error())
 		return err
 	}
 
@@ -112,7 +117,8 @@ func (c *ClientWrapper) Send(to string, message string) error {
 		},
 	})
 	if err != nil {
-		log.Errorf("failed to encode whatsapp message request with '%v'. target phone '%s'", err, to)
+		err = fmt.Errorf("failed to encode whatsapp message request with '%v'. target phone '%s'", err, to)
+		logrus.Error(err.Error())
 		return err
 	}
 
@@ -123,7 +129,7 @@ func send(from string, to string, body io.Reader, auth string) error {
 
 	r, err := http.NewRequest(http.MethodPost, getMessageUrl(from), body)
 	if err != nil {
-		log.Errorf("failed to create HTTP request for sending a whatsapp message to '%s' with '%v'", to, err)
+		logrus.Errorf("failed to create HTTP request for sending a whatsapp message to '%s' with '%v'", to, err)
 		return err
 	}
 	r.Header.Add("Content-Type", "application/json")
@@ -132,12 +138,12 @@ func send(from string, to string, body io.Reader, auth string) error {
 	client := http.Client{}
 	response, err := client.Do(r)
 	if err != nil {
-		log.Errorf("failed to send whatsapp message to '%s' with '%v'", to, err)
+		logrus.Errorf("failed to send whatsapp message to '%s' with '%v'", to, err)
 		return err
 	}
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated {
 		msg := fmt.Sprintf("failed to send whatsapp message to '%s' with '%s'", to, response.Status)
-		log.Info(msg)
+		logrus.Info(msg)
 		return errors.New(msg)
 	}
 

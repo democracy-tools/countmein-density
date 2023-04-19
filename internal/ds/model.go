@@ -13,6 +13,7 @@ type User struct {
 	Name       string `json:"name" datastore:"name"`
 	Preference string `json:"preference" datastore:"preference"`
 	Time       int64  `json:"time" datastore:"time"`
+	Role       string `json:"role" datastore:"role"`
 }
 
 type Volunteer struct {

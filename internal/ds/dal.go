@@ -37,3 +37,16 @@ func GetKaplanDemonstration(dsc Client) (*Demonstration, error) {
 
 	return &demonstration, nil
 }
+
+func IsAdmin(dsc Client, phone string) (bool, error) {
+
+	user, err := GetUserByPhone(dsc, phone)
+	if err != nil {
+		return false, err
+	}
+	if user.Role == "admin" {
+		return true, nil
+	}
+
+	return false, nil
+}

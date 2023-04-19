@@ -56,6 +56,13 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 					} else {
 						h.sc.Info(fmt.Sprintf("Failed to add user %s (%s) with %d", contact.Profile.Name, contact.WaID, code))
 					}
+				} else if isReportRequest(message.Text.Body) {
+					err := report(h.dsc, h.wac, h.sc, contact.WaID, message.Text.Body)
+					if err != nil {
+						h.sc.Debug(fmt.Sprintf("Failed to send report %s with %v", message.Text.Body, err))
+					} else {
+						h.sc.Debug(fmt.Sprintf("Sent report %s", message.Text.Body))
+					}
 				}
 			} else if message.Type == whatsapp.TypeButton {
 				if isUnsubscribeRequestButton(message.Button.Text) {
@@ -135,6 +142,13 @@ func isRegisterRequest(message string) bool {
 	message = strings.ReplaceAll(message, " ", "")
 	return strings.EqualFold(message, "join") || message == "קפלן" ||
 		message == "אנירוצהלהתנדבבספירתהמפגיניםבקפלן"
+}
+
+func isReportRequest(message string) bool {
+
+	split := strings.Split(message, " ")
+	return len(split) == 2 &&
+		(strings.EqualFold(split[0], "thanks1") || strings.EqualFold(split[0], "thanks2"))
 }
 
 func isJoinRequestButton(message string) bool {
