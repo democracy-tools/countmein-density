@@ -5,6 +5,8 @@ import (
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
 	"github.com/democracy-tools/countmein-density/internal/env"
+	whatsapp "github.com/democracy-tools/countmein-density/internal/whatapp"
+	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 )
 
@@ -25,14 +27,14 @@ func sendMessageToAllUsers() error {
 		return err
 	}
 
-	// wac := whatsapp.NewClientWrapper()
-	// for _, currUser := range users {
-	//  log.Infof()
-	// 	err = wac.SendTemplate(currUser.Phone, id, currUser.Id)
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// }
+	wac := whatsapp.NewClientWrapper()
+	for _, currUser := range users {
+		logrus.Infof("%s (%s)", currUser.Name, currUser.Phone)
+		err := wac.SendBodyParamsTemplate("meeting", currUser.Phone, []string{"חמישי", "20:30", "פידבק מההפגנות האחרונות ותכניות קדימה", "meet.google.com/fpf-bvbt-cvd"})
+		if err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
