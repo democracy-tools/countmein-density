@@ -12,21 +12,21 @@ type Language struct {
 	Code   string `json:"code"`
 }
 
-type Parameters struct {
+type Parameter struct {
 	Type string `json:"type"`
 	Text string `json:"text"`
 }
 
-type Components struct {
-	Type       string       `json:"type"`
-	Parameters []Parameters `json:"parameters"`
-	SubType    string       `json:"sub_type,omitempty"`
-	Index      string       `json:"index,omitempty"`
+type Component struct {
+	Type       string      `json:"type"`
+	Parameters []Parameter `json:"parameters"`
+	SubType    string      `json:"sub_type,omitempty"`
+	Index      string      `json:"index,omitempty"`
 }
 
 type Template struct {
-	Namespace  string       `json:"namespace"`
-	Language   Language     `json:"language"`
-	Name       string       `json:"name"`
-	Components []Components `json:"components"`
+	Namespace  string      `json:"namespace"`
+	Language   Language    `json:"language"`
+	Name       string      `json:"name"`
+	Components []Component `json:"components"`
 }

@@ -19,6 +19,7 @@ type Client interface {
 	SendInvitationTemplate(to string, demonstration string, userId string) error
 	SendDemonstrationTemplate(to string, demonstration string, userId string,
 		user string, polygon string, location string) error
+	SendThanksTemplate(to string, count string) error
 }
 
 type ClientWrapper struct {
@@ -36,7 +37,7 @@ func NewClientWrapper() Client {
 func (c *ClientWrapper) SendSignupTemplate(to string, token string) error {
 
 	var buf bytes.Buffer
-	err := json.NewEncoder(&buf).Encode(newTemplate("signup", to, token))
+	err := json.NewEncoder(&buf).Encode(newTemplate("signup", to, token, nil))
 	if err != nil {
 		log.Errorf("failed to encode whatsapp sigunup message request with '%v' phone '%s'", err, to)
 		return err
@@ -48,7 +49,7 @@ func (c *ClientWrapper) SendSignupTemplate(to string, token string) error {
 func (c *ClientWrapper) SendVerifyTemplate(to string) error {
 
 	var buf bytes.Buffer
-	err := json.NewEncoder(&buf).Encode(newTemplate("verify5", to, ""))
+	err := json.NewEncoder(&buf).Encode(newTemplate("verify5", to, "", nil))
 	if err != nil {
 		log.Errorf("failed to encode whatsapp verify message request with '%v' phone '%s'", err, to)
 		return err
@@ -61,7 +62,7 @@ func (c *ClientWrapper) SendInvitationTemplate(to string, demonstration string, 
 
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(newTemplate("attend", to,
-		fmt.Sprintf("?demonstration=%s&user=%s", demonstration, userId)))
+		fmt.Sprintf("?demonstration=%s&user=%s", demonstration, userId), nil))
 	if err != nil {
 		log.Errorf("failed to encode whatsapp attend message request with '%v' phone '%s'", err, to)
 		return err
@@ -76,9 +77,21 @@ func (c *ClientWrapper) SendDemonstrationTemplate(to string, demonstration strin
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(newTemplate("demonstration", to,
 		fmt.Sprintf("?demonstration=%s&user-id=%s&user=%s&polygon=%s&q=%s",
-			demonstration, userId, user, polygon, location)))
+			demonstration, userId, user, polygon, location), nil))
 	if err != nil {
 		log.Errorf("failed to encode whatsapp demonstration message request with '%v' user '%s (%s)'", err, user, userId)
+		return err
+	}
+
+	return send(c.from, to, &buf, c.auth)
+}
+
+func (c *ClientWrapper) SendThanksTemplate(to string, count string) error {
+
+	var buf bytes.Buffer
+	err := json.NewEncoder(&buf).Encode(newTemplate("thanks", to, "", []string{count}))
+	if err != nil {
+		log.Errorf("failed to encode whatsapp thanks message request with '%v' phone '%s'", err, to)
 		return err
 	}
 
@@ -131,7 +144,7 @@ func send(from string, to string, body io.Reader, auth string) error {
 	return nil
 }
 
-func newTemplate(name string, to string, componentParam string) TemplateMessageRequest {
+func newTemplate(name string, to string, buttonUrlParam string, bodyTextParams []string) TemplateMessageRequest {
 
 	res := TemplateMessageRequest{
 		MessagingProduct: "whatsapp",
@@ -146,16 +159,25 @@ func newTemplate(name string, to string, componentParam string) TemplateMessageR
 		},
 	}
 
-	if componentParam != "" {
-		res.Template.Components = []Components{{
+	if buttonUrlParam != "" {
+		res.Template.Components = []Component{{
 			Type:    "button",
 			SubType: "url",
 			Index:   "0",
-			Parameters: []Parameters{{
+			Parameters: []Parameter{{
 				Type: "text",
-				Text: componentParam,
+				Text: buttonUrlParam,
 			}},
 		}}
+	}
+
+	for _, currParam := range bodyTextParams {
+		res.Template.Components = append(res.Template.Components, Component{
+			Type: "body",
+			Parameters: []Parameter{{
+				Type: "text",
+				Text: currParam,
+			}}})
 	}
 
 	return res

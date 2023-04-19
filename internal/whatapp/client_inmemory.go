@@ -26,3 +26,7 @@ func (c *InMemoryClient) SendDemonstrationTemplate(to string, demonstration stri
 	user string, polygon string, location string) error {
 	return nil
 }
+
+func (c *InMemoryClient) SendThanksTemplate(to string, count string) error {
+	return nil
+}
