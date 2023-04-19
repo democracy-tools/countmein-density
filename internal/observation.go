@@ -14,19 +14,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type Observation struct {
-	Time          int64   `json:"time" datastore:"time"`
-	User          string  `json:"user_id" datastore:"user_id"`
-	Demonstration string  `json:"demonstration" datastore:"demonstration"`
-	Polygon       string  `json:"polygon" datastore:"polygon"`
-	Density       float32 `json:"density" datastore:"density"`
-	Latitude      float32 `json:"latitude" datastore:"latitude"`
-	Longitude     float32 `json:"longitude" datastore:"longitude"`
-}
-
 func (h *Handle) CreateObservation(w http.ResponseWriter, r *http.Request) {
 
-	var observation Observation
+	var observation ds.Observation
 	err := json.NewDecoder(r.Body).Decode(&observation)
 	if err != nil {
 		log.Infof("failed to decode request observation with '%v'", err)
@@ -49,7 +39,7 @@ func (h *Handle) CreateObservation(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handle) GetObservations(w http.ResponseWriter, r *http.Request) {
 
-	var observations []Observation
+	var observations []ds.Observation
 	err := h.dsc.GetFilter(ds.KindObservation,
 		[]ds.FilterField{{Name: "time", Operator: ">", Value: time.Now().Add(time.Minute * (-17)).Unix()}},
 		&observations)
@@ -68,9 +58,9 @@ func (h *Handle) GetObservations(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func latestObservations(observations []Observation) []Observation {
+func latestObservations(observations []ds.Observation) []ds.Observation {
 
-	userToLastObservation := make(map[string]Observation)
+	userToLastObservation := make(map[string]ds.Observation)
 	for _, currObservation := range observations {
 		latest, ok := userToLastObservation[currObservation.Polygon]
 		if !ok || latest.Time < currObservation.Time {
@@ -81,9 +71,9 @@ func latestObservations(observations []Observation) []Observation {
 	return toObservationSlice(userToLastObservation)
 }
 
-func toObservationSlice(userToLastObservation map[string]Observation) []Observation {
+func toObservationSlice(userToLastObservation map[string]ds.Observation) []ds.Observation {
 
-	var res []Observation
+	var res []ds.Observation
 	for _, currObservation := range userToLastObservation {
 		res = append(res, currObservation)
 	}
@@ -91,7 +81,7 @@ func toObservationSlice(userToLastObservation map[string]Observation) []Observat
 	return res
 }
 
-func getObservationAsText(observations []Observation) []byte {
+func getObservationAsText(observations []ds.Observation) []byte {
 
 	sort.Slice(observations, func(i, j int) bool {
 		return observations[i].Polygon < observations[j].Polygon
@@ -109,7 +99,7 @@ func getObservationAsText(observations []Observation) []byte {
 	return res
 }
 
-func validateObservation(observation *Observation) bool {
+func validateObservation(observation *ds.Observation) bool {
 
 	now := time.Now()
 	if observation.Time < now.Add(time.Hour*(-2)).Unix() || observation.Time > now.Add(time.Hour*2).Unix() {

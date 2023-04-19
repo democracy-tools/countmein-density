@@ -23,6 +23,16 @@ type Volunteer struct {
 	Time            int64  `json:"time" datastore:"time"`
 }
 
+type Observation struct {
+	Time          int64   `json:"time" datastore:"time"`
+	User          string  `json:"user_id" datastore:"user_id"`
+	Demonstration string  `json:"demonstration" datastore:"demonstration"`
+	Polygon       string  `json:"polygon" datastore:"polygon"`
+	Density       float32 `json:"density" datastore:"density"`
+	Latitude      float32 `json:"latitude" datastore:"latitude"`
+	Longitude     float32 `json:"longitude" datastore:"longitude"`
+}
+
 func GetVolunteerId(demonstrationId string, userId string) string {
 
 	return fmt.Sprintf("%s$%s", demonstrationId, userId)

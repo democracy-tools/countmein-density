@@ -19,7 +19,7 @@ func TestHandle_CreateObservation(t *testing.T) {
 
 	var buf bytes.Buffer
 	require.NoError(t, json.NewEncoder(&buf).Encode(
-		&internal.Observation{
+		&ds.Observation{
 			Time:    time.Now().Unix(),
 			User:    "israel",
 			Polygon: "A18B",
@@ -46,7 +46,7 @@ func TestHandle_GetObservations(t *testing.T) {
 	now := time.Now().Unix()
 	dsc.SetGetFilterDelegate(
 		func(kind ds.Kind, filters []ds.FilterField, dst interface{}) error {
-			reflect.ValueOf(dst).Elem().Set(reflect.ValueOf([]internal.Observation{
+			reflect.ValueOf(dst).Elem().Set(reflect.ValueOf([]ds.Observation{
 				{
 					Time:    now - 10,
 					User:    "israel",
@@ -73,7 +73,7 @@ func TestHandle_GetObservations(t *testing.T) {
 	internal.NewHandle(dsc, whatsapp.NewInMemoryClient()).GetObservations(w, r)
 
 	require.Equal(t, http.StatusOK, w.Result().StatusCode)
-	var res map[string][]internal.Observation
+	var res map[string][]ds.Observation
 	require.NoError(t, json.NewDecoder(w.Result().Body).Decode(&res))
 	require.Len(t, res["observations"], 1)
 	require.Equal(t, float32(2), res["observations"][0].Density)
