@@ -25,8 +25,8 @@ func main() {
 
 	const (
 		observations    = "/observations"
-		join            = "/demonstrations/{demonstration-id}/users/{user-id}"
 		whatsappWebhook = "/whatsapp"
+		// join            = "/demonstrations/{demonstration-id}/users/{user-id}"
 	)
 
 	handle := internal.NewHandle(
@@ -39,7 +39,6 @@ func main() {
 			whatsappWebhook, whatsappWebhook,
 		}, []string{
 			http.MethodPost, http.MethodGet, http.MethodOptions,
-			http.MethodPost, http.MethodOptions,
 			http.MethodGet, http.MethodPost,
 		}, []func(http.ResponseWriter, *http.Request){
 			access(handle.CreateObservation), access(handle.GetObservations), options([]string{http.MethodPost, http.MethodGet}),
