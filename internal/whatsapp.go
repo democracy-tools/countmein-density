@@ -66,7 +66,7 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 				}
 			} else if message.Type == whatsapp.TypeButton {
 				if isUnsubscribeRequestButton(message.Button.Text) {
-					err := deleteUser(h.dsc, h.wac, contact.WaID)
+					err := deleteUser(h.dsc, contact.WaID)
 					if err != nil {
 						h.sc.Info(fmt.Sprintf("Failed to delete user %s (%s) with %v", contact.Profile.Name, contact.WaID, err))
 					} else {

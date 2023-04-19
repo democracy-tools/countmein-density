@@ -133,7 +133,13 @@ func (c *ClientWrapper) Put(kind Kind, id string, src interface{}) error {
 
 func (c *ClientWrapper) Delete(kind Kind, id string) error {
 
-	return c.ds.Delete(context.Background(), getKey(kind, id))
+	err := c.ds.Delete(context.Background(), getKey(kind, id))
+	if err != nil {
+		log.Errorf("failed to delete '%s' with '%v'", kind, err)
+		return err
+	}
+
+	return nil
 }
 
 func getKey(kind Kind, id string) *datastore.Key {

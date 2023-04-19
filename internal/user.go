@@ -8,10 +8,20 @@ import (
 	"github.com/democracy-tools/countmein-density/internal/ds"
 	whatsapp "github.com/democracy-tools/countmein-density/internal/whatapp"
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 )
 
-func deleteUser(dsc ds.Client, wac whatsapp.Client, phone string) error {
+func (h *Handle) DeleteUser(w http.ResponseWriter, r *http.Request) {
+
+	err := h.dsc.Delete(ds.KindUser, mux.Vars(r)["user-id"])
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+}
+
+func deleteUser(dsc ds.Client, phone string) error {
 
 	user, err := ds.GetUserByPhone(dsc, phone)
 	if err != nil {

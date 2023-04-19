@@ -25,6 +25,7 @@ func main() {
 
 	const (
 		observations    = "/observations"
+		users           = "/users/{user-id}"
 		whatsappWebhook = "/whatsapp"
 		// join            = "/demonstrations/{demonstration-id}/users/{user-id}"
 	)
@@ -36,12 +37,15 @@ func main() {
 	serve(
 		[]string{
 			observations, observations, observations,
+			users, users,
 			whatsappWebhook, whatsappWebhook,
 		}, []string{
 			http.MethodPost, http.MethodGet, http.MethodOptions,
+			http.MethodDelete, http.MethodOptions,
 			http.MethodGet, http.MethodPost,
 		}, []func(http.ResponseWriter, *http.Request){
 			access(handle.CreateObservation), access(handle.GetObservations), options([]string{http.MethodPost, http.MethodGet}),
+			access(handle.DeleteUser), options([]string{http.MethodDelete}),
 			handle.WhatsAppVerification, handle.WhatsAppEventHandler,
 		},
 	)
