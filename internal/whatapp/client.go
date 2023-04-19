@@ -19,7 +19,7 @@ type Client interface {
 	SendInvitationTemplate(to string, demonstration string, userId string) error
 	SendDemonstrationTemplate(to string, demonstration string, userId string,
 		user string, polygon string, location string) error
-	SendThanksTemplate(to string, count string) error
+	SendBodyParamsTemplate(template string, to string, params []string) error
 }
 
 type ClientWrapper struct {
@@ -86,10 +86,10 @@ func (c *ClientWrapper) SendDemonstrationTemplate(to string, demonstration strin
 	return send(c.from, to, &buf, c.auth)
 }
 
-func (c *ClientWrapper) SendThanksTemplate(to string, count string) error {
+func (c *ClientWrapper) SendBodyParamsTemplate(template string, to string, params []string) error {
 
 	var buf bytes.Buffer
-	err := json.NewEncoder(&buf).Encode(newTemplate("thanks", to, "", []string{count}))
+	err := json.NewEncoder(&buf).Encode(newTemplate(template, to, "", params))
 	if err != nil {
 		log.Errorf("failed to encode whatsapp thanks message request with '%v' phone '%s'", err, to)
 		return err
@@ -171,13 +171,17 @@ func newTemplate(name string, to string, buttonUrlParam string, bodyTextParams [
 		}}
 	}
 
-	for _, currParam := range bodyTextParams {
-		res.Template.Components = append(res.Template.Components, Component{
-			Type: "body",
-			Parameters: []Parameter{{
+	if len(bodyTextParams) > 0 {
+		var params []Parameter
+		for _, currParam := range bodyTextParams {
+			params = append(params, Parameter{
 				Type: "text",
 				Text: currParam,
-			}}})
+			})
+		}
+		res.Template.Components = append(res.Template.Components, Component{
+			Type:       "body",
+			Parameters: params})
 	}
 
 	return res

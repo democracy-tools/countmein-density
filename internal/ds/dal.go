@@ -26,3 +26,14 @@ func GetUserByPhone(dsc Client, phone string) (*User, error) {
 
 	return nil, nil
 }
+
+func GetKaplanDemonstration(dsc Client) (*Demonstration, error) {
+
+	var demonstration Demonstration
+	err := dsc.Get(KindDemonstration, DemonstrationKaplan, &demonstration)
+	if err != nil {
+		return nil, err
+	}
+
+	return &demonstration, nil
+}

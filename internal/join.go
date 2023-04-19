@@ -20,8 +20,7 @@ func (h *Handle) join(phone string) error {
 		return err
 	}
 
-	var demonstration ds.Demonstration
-	err = h.dsc.Get(ds.KindDemonstration, ds.DemonstrationKaplan, &demonstration)
+	demonstration, err := ds.GetKaplanDemonstration(h.dsc)
 	if err != nil {
 		return err
 	}

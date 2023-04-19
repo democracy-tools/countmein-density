@@ -27,6 +27,6 @@ func (c *InMemoryClient) SendDemonstrationTemplate(to string, demonstration stri
 	return nil
 }
 
-func (c *InMemoryClient) SendThanksTemplate(to string, count string) error {
+func (c *InMemoryClient) SendBodyParamsTemplate(template string, to string, params []string) error {
 	return nil
 }
