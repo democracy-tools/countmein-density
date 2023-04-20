@@ -49,10 +49,9 @@ func (c *ClientWrapper) SendOnboardingTemplate(to string, userId string) error {
 func (c *ClientWrapper) SendInvitationTemplate(to string, demonstration string, userId string) error {
 
 	var buf bytes.Buffer
-	err := json.NewEncoder(&buf).Encode(newTemplate("attend", to,
-		fmt.Sprintf("?demonstration=%s&user=%s", demonstration, userId), nil))
+	err := json.NewEncoder(&buf).Encode(newTemplate("attend_button", to, "", nil))
 	if err != nil {
-		err = fmt.Errorf("failed to encode whatsapp attend message request with '%v' phone '%s'", err, to)
+		err = fmt.Errorf("failed to encode whatsapp 'attend_button' message request with '%v' phone '%s'", err, to)
 		logrus.Error(err.Error())
 		return err
 	}
@@ -64,7 +63,7 @@ func (c *ClientWrapper) SendDemonstrationTemplate(to string, demonstration strin
 	user string, polygon string, location string) error {
 
 	var buf bytes.Buffer
-	err := json.NewEncoder(&buf).Encode(newTemplate("demonstration", to,
+	err := json.NewEncoder(&buf).Encode(newTemplate("demonstration2", to,
 		fmt.Sprintf("?demonstration=%s&user-id=%s&user=%s&polygon=%s&q=%s",
 			demonstration, userId, user, polygon, location), nil))
 	if err != nil {
