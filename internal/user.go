@@ -21,7 +21,7 @@ func (h *Handle) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	h.sc.Debug(fmt.Sprintf("User deleted %s", userId))
+	h.sc.Info(fmt.Sprintf("User deleted %s", userId))
 }
 
 func deleteUser(dsc ds.Client, phone string) error {

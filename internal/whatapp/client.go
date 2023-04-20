@@ -67,7 +67,7 @@ func (c *ClientWrapper) SendDemonstrationTemplate(to string, demonstration strin
 		fmt.Sprintf("?demonstration=%s&user-id=%s&user=%s&polygon=%s&q=%s",
 			demonstration, userId, user, polygon, location), nil))
 	if err != nil {
-		err = fmt.Errorf("failed to encode whatsapp demonstration message request with '%v' user '%s (%s)'", err, user, userId)
+		err = fmt.Errorf("failed to encode whatsapp 'demonstration2' message request with '%v' user '%s (%s)'", err, user, userId)
 		logrus.Error(err.Error())
 		return err
 	}

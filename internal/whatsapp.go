@@ -52,7 +52,7 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 				if isRegisterRequest(message.Text.Body) {
 					code := createUser(h.dsc, h.wac, contact.WaID, contact.Profile.Name, "")
 					if code == http.StatusCreated {
-						h.sc.Debug(fmt.Sprintf("User added: %s (%s)", contact.Profile.Name, contact.WaID))
+						h.sc.Info(fmt.Sprintf("User added: %s (%s)", contact.Profile.Name, contact.WaID))
 					} else {
 						h.sc.Debug(fmt.Sprintf("Failed to add user %s (%s) with %d", contact.Profile.Name, contact.WaID, code))
 					}
