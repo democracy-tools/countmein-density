@@ -12,11 +12,7 @@ func (c *InMemoryClient) Send(phone string, body string) error {
 	return nil
 }
 
-func (c *InMemoryClient) SendSignupTemplate(to string, token string) error {
-	return nil
-}
-
-func (c *InMemoryClient) SendVerifyTemplate(phone string) error { return nil }
+func (c *InMemoryClient) SendOnboardingTemplate(phone string, userId string) error { return nil }
 
 func (c *InMemoryClient) SendInvitationTemplate(to string, demonstration string, userId string) error {
 	return nil

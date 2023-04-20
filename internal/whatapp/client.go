@@ -14,8 +14,7 @@ import (
 
 type Client interface {
 	Send(phone string, body string) error
-	SendSignupTemplate(phone string, token string) error
-	SendVerifyTemplate(phone string) error
+	SendOnboardingTemplate(phone string, userId string) error
 	SendInvitationTemplate(to string, demonstration string, userId string) error
 	SendDemonstrationTemplate(to string, demonstration string, userId string,
 		user string, polygon string, location string) error
@@ -34,25 +33,12 @@ func NewClientWrapper() Client {
 	}
 }
 
-func (c *ClientWrapper) SendSignupTemplate(to string, token string) error {
+func (c *ClientWrapper) SendOnboardingTemplate(to string, userId string) error {
 
 	var buf bytes.Buffer
-	err := json.NewEncoder(&buf).Encode(newTemplate("signup", to, token, nil))
+	err := json.NewEncoder(&buf).Encode(newTemplate("onboarding1", to, userId, nil))
 	if err != nil {
-		err = fmt.Errorf("failed to encode whatsapp sigunup message request with '%v' phone '%s'", err, to)
-		logrus.Error(err.Error())
-		return err
-	}
-
-	return send(c.from, to, &buf, c.auth)
-}
-
-func (c *ClientWrapper) SendVerifyTemplate(to string) error {
-
-	var buf bytes.Buffer
-	err := json.NewEncoder(&buf).Encode(newTemplate("verify5", to, "", nil))
-	if err != nil {
-		err = fmt.Errorf("failed to encode whatsapp verify message request with '%v' phone '%s'", err, to)
+		err = fmt.Errorf("failed to encode whatsapp onboarding message request with '%v' phone '%s' user '%s'", err, to, userId)
 		logrus.Error(err.Error())
 		return err
 	}

@@ -55,7 +55,7 @@ func createUser(dsc ds.Client, wac whatsapp.Client, phone string, name string, p
 		return http.StatusInternalServerError
 	}
 
-	err = wac.SendVerifyTemplate(phone)
+	err = wac.SendOnboardingTemplate(phone, id)
 	if err != nil {
 		return http.StatusInternalServerError
 	}
