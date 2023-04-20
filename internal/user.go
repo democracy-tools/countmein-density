@@ -14,11 +14,14 @@ import (
 
 func (h *Handle) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
-	err := h.dsc.Delete(ds.KindUser, mux.Vars(r)["user-id"])
+	userId := mux.Vars(r)["user-id"]
+	err := h.dsc.Delete(ds.KindUser, userId)
 	if err != nil {
+		h.sc.Debug(fmt.Sprintf("Failed to delete user %s with %v", userId, err))
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	h.sc.Debug(fmt.Sprintf("User deleted %s", userId))
 }
 
 func deleteUser(dsc ds.Client, phone string) error {

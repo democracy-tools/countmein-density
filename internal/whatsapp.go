@@ -52,9 +52,9 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 				if isRegisterRequest(message.Text.Body) {
 					code := createUser(h.dsc, h.wac, contact.WaID, contact.Profile.Name, "")
 					if code == http.StatusCreated {
-						h.sc.Info(fmt.Sprintf("User added: %s (%s)", contact.Profile.Name, contact.WaID))
+						h.sc.Debug(fmt.Sprintf("User added: %s (%s)", contact.Profile.Name, contact.WaID))
 					} else {
-						h.sc.Info(fmt.Sprintf("Failed to add user %s (%s) with %d", contact.Profile.Name, contact.WaID, code))
+						h.sc.Debug(fmt.Sprintf("Failed to add user %s (%s) with %d", contact.Profile.Name, contact.WaID, code))
 					}
 				} else if isReportRequest(message.Text.Body) {
 					err := report(h.dsc, h.wac, h.sc, contact.WaID, message.Text.Body)
