@@ -3,6 +3,7 @@ package internal
 import (
 	"fmt"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
@@ -67,9 +68,11 @@ func (h *Handle) join(phone string) error {
 func getPolygonByPriority(available map[string]string, preferred string) (string, string) {
 
 	if preferred != "" {
-		res, ok := available[preferred]
-		if ok {
-			return preferred, res
+		for _, curr := range strings.Split(strings.ReplaceAll(preferred, " ", ""), ",") {
+			res, ok := available[curr]
+			if ok {
+				return preferred, res
+			}
 		}
 	}
 
