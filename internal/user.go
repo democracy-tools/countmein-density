@@ -15,12 +15,18 @@ import (
 func (h *Handle) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	userId := mux.Vars(r)["user-id"]
+	if !validateToken(userId) {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	err := h.dsc.Delete(ds.KindUser, userId)
 	if err != nil {
 		h.sc.Debug(fmt.Sprintf("Failed to delete user %s with %v", userId, err))
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	h.sc.Info(fmt.Sprintf("User deleted %s", userId))
 }
 
