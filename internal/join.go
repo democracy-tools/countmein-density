@@ -71,7 +71,7 @@ func getPolygonByPriority(available map[string]string, preferred string) (string
 		for _, curr := range strings.Split(strings.ReplaceAll(preferred, " ", ""), ",") {
 			res, ok := available[curr]
 			if ok {
-				return preferred, res
+				return curr, res
 			}
 		}
 	}
