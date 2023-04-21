@@ -9,9 +9,17 @@ import (
 	"github.com/democracy-tools/countmein-density/internal/env"
 	whatsapp "github.com/democracy-tools/countmein-density/internal/whatapp"
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 )
+
+func TestVolunteerCount(t *testing.T) {
+
+	// env.Initialize()
+	t.Skip("infra")
+	require.NoError(t, countVolunteers())
+}
 
 func TestCreateDemonstration(t *testing.T) {
 
@@ -65,4 +73,28 @@ func createDemonstrationInDatastore(dsc ds.Client) (string, error) {
 	}
 
 	return id, nil
+}
+
+func countVolunteers() error {
+
+	dsc := ds.NewClientWrapper(env.Project)
+
+	demonstration, err := ds.GetKaplanDemonstration(dsc)
+	if err != nil {
+		return err
+	}
+
+	var volunteers []ds.Volunteer
+	err = dsc.GetFilter(ds.KindVolunteer, []ds.FilterField{{
+		Name:     "demonstration_id",
+		Operator: "=",
+		Value:    demonstration.Id,
+	}}, &volunteers)
+	if err != nil {
+		return err
+	}
+
+	logrus.Infof("Volunteer count: %d", len(volunteers))
+
+	return nil
 }
