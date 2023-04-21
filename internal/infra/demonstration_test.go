@@ -2,6 +2,7 @@ package job
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/democracy-tools/countmein-density/internal"
@@ -13,6 +14,13 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 )
+
+func TestChangePolygon(t *testing.T) {
+
+	// env.Initialize()
+	t.Skip("infra")
+	require.NoError(t, changePolygon("972501234567", "A78"))
+}
 
 func TestVolunteerCount(t *testing.T) {
 
@@ -97,4 +105,51 @@ func countVolunteers() error {
 	logrus.Infof("Volunteer count: %d", len(volunteers))
 
 	return nil
+}
+
+func changePolygon(phone string, polygon string) error {
+
+	dsc := ds.NewClientWrapper(env.Project)
+
+	user, err := ds.GetUserByPhone(dsc, phone)
+	if err != nil {
+		return err
+	}
+
+	if sliceContains(strings.Split(strings.ReplaceAll(user.Preference, " ", ""), ","), polygon) {
+		return fmt.Errorf("%s (%s) asked to change into polygon '%s', but has it as part of preference '%s'", user.Name, user.Phone, polygon, user.Preference)
+	}
+	err = dsc.Put(ds.KindUser, user.Id, &ds.User{
+		Id:         user.Id,
+		Phone:      user.Phone,
+		Name:       user.Name,
+		Preference: getPreference(user.Preference, polygon),
+		Time:       user.Time,
+		Role:       user.Role,
+	})
+	if err != nil {
+		return err
+	}
+
+	return internal.NewHandle(dsc, whatsapp.NewClientWrapper()).Join(user)
+}
+
+func getPreference(preference string, polygon string) string {
+
+	if preference == "" {
+		return polygon
+	}
+
+	return fmt.Sprintf("%s,%s", preference, polygon)
+}
+
+func sliceContains(slice []string, item string) bool {
+
+	for _, curr := range slice {
+		if curr == item {
+			return true
+		}
+	}
+
+	return false
 }
