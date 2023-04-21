@@ -20,14 +20,21 @@ func (h *Handle) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.dsc.Delete(ds.KindUser, userId)
+	var user ds.User
+	err := h.dsc.Get(ds.KindUser, userId, &user)
 	if err != nil {
-		h.sc.Debug(fmt.Sprintf("Failed to delete user %s with %v", userId, err))
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = h.dsc.Delete(ds.KindUser, userId)
+	if err != nil {
+		h.sc.Debug(fmt.Sprintf("Failed to delete user %s (%s) %s with %v", user.Name, user.Phone, userId, err))
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	h.sc.Info(fmt.Sprintf("User deleted %s", userId))
+	h.sc.Info(fmt.Sprintf("User deleted %s (%s) %s", user.Name, user.Phone, userId))
 }
 
 func deleteUser(dsc ds.Client, phone string) error {
