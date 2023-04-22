@@ -40,7 +40,7 @@ func TestInviteSpecificUser(t *testing.T) {
 
 	// env.Initialize()
 	t.Skip("infra")
-	require.NoError(t, inviteSpecificUser("1234567-9c8c-4eb1-9a28-123456789"))
+	require.NoError(t, inviteSpecificUser("972123456789"))
 }
 
 func createDemonstration() error {
@@ -55,7 +55,7 @@ func createDemonstration() error {
 	return inviteAllUsers(dsc, id)
 }
 
-func inviteSpecificUser(userId string) error {
+func inviteSpecificUser(phone string) error {
 
 	dsc := ds.NewClientWrapper(env.Project)
 
@@ -64,13 +64,12 @@ func inviteSpecificUser(userId string) error {
 		return err
 	}
 
-	var user ds.User
-	err = dsc.Get(ds.KindUser, userId, &user)
+	user, err := ds.GetUserByPhone(dsc, phone)
 	if err != nil {
 		return err
 	}
 
-	return inviteVolunteers(dsc, demonstration.Id, []ds.User{user})
+	return inviteVolunteers(dsc, demonstration.Id, []ds.User{*user})
 }
 
 func inviteAllUsers(dsc ds.Client, demonstrationId string) error {
