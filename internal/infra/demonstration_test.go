@@ -36,6 +36,13 @@ func TestCreateDemonstration(t *testing.T) {
 	require.NoError(t, createDemonstration())
 }
 
+func TestInviteSpecificUser(t *testing.T) {
+
+	// env.Initialize()
+	t.Skip("infra")
+	require.NoError(t, inviteSpecificUser("1234567-9c8c-4eb1-9a28-123456789"))
+}
+
 func createDemonstration() error {
 
 	dsc := ds.NewClientWrapper(env.Project)
@@ -45,10 +52,28 @@ func createDemonstration() error {
 		return err
 	}
 
-	return inviteVolunteers(dsc, id)
+	return inviteAllUsers(dsc, id)
 }
 
-func inviteVolunteers(dsc ds.Client, id string) error {
+func inviteSpecificUser(userId string) error {
+
+	dsc := ds.NewClientWrapper(env.Project)
+
+	demonstration, err := ds.GetKaplanDemonstration(dsc)
+	if err != nil {
+		return err
+	}
+
+	var user ds.User
+	err = dsc.Get(ds.KindUser, userId, &user)
+	if err != nil {
+		return err
+	}
+
+	return inviteVolunteers(dsc, demonstration.Id, []ds.User{user})
+}
+
+func inviteAllUsers(dsc ds.Client, demonstrationId string) error {
 
 	var users []ds.User
 	err := dsc.GetAll(ds.KindUser, &users)
@@ -56,12 +81,17 @@ func inviteVolunteers(dsc ds.Client, id string) error {
 		return err
 	}
 
+	return inviteVolunteers(dsc, demonstrationId, users)
+}
+
+func inviteVolunteers(dsc ds.Client, demonstrationId string, users []ds.User) error {
+
 	wac := whatsapp.NewClientWrapper()
 	log.Info("Sending invitations...")
 	for _, currUser := range users {
-		link := fmt.Sprintf("%s?user=%s&demonstration=%s", internal.JoinUrl, currUser.Id, id)
+		link := fmt.Sprintf("%s?user=%s&demonstration=%s", internal.JoinUrl, currUser.Id, demonstrationId)
 		log.Infof("%s (%s): %s\n%s", currUser.Name, currUser.Id, currUser.Phone, link)
-		err = wac.SendInvitationTemplate(currUser.Phone, id, currUser.Id)
+		err := wac.SendInvitationTemplate(currUser.Phone, demonstrationId, currUser.Id)
 		if err != nil {
 			return err
 		}
