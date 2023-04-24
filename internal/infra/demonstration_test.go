@@ -121,12 +121,7 @@ func countVolunteers() error {
 		return err
 	}
 
-	var volunteers []ds.Volunteer
-	err = dsc.GetFilter(ds.KindVolunteer, []ds.FilterField{{
-		Name:     "demonstration_id",
-		Operator: "=",
-		Value:    demonstration.Id,
-	}}, &volunteers)
+	volunteers, err := ds.GetVolunteers(dsc, demonstration.Id)
 	if err != nil {
 		return err
 	}

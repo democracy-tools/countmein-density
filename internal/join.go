@@ -94,10 +94,7 @@ func getPolygonByPriority(available map[string]string, preferred string) (string
 func getAvailablePolygons(dsc ds.Client, demonstration string) (map[string]string, error) {
 
 	res := getPolygons()
-	var volunteers []ds.Volunteer
-	err := dsc.GetFilter(ds.KindVolunteer,
-		[]ds.FilterField{{Name: "demonstration_id", Operator: "=", Value: demonstration}},
-		&volunteers)
+	volunteers, err := ds.GetVolunteers(dsc, demonstration)
 	if err != nil {
 		return nil, err
 	}

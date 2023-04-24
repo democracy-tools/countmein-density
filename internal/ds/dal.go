@@ -38,6 +38,31 @@ func GetKaplanDemonstration(dsc Client) (*Demonstration, error) {
 	return &demonstration, nil
 }
 
+func GetVolunteers(dsc Client, demonstration string) ([]Volunteer, error) {
+
+	var volunteers []Volunteer
+	err := dsc.GetFilter(KindVolunteer,
+		[]FilterField{{Name: "demonstration_id", Operator: "=", Value: demonstration}},
+		&volunteers)
+	if err != nil {
+		return nil, err
+	}
+
+	return volunteers, nil
+}
+
+func GetObservations(dsc Client, demonstration string) ([]Observation, error) {
+
+	var observations []Observation
+	err := dsc.GetFilter(KindObservation,
+		[]FilterField{{Name: "demonstration", Operator: "=", Value: demonstration}},
+		&observations)
+	if err != nil {
+		return nil, err
+	}
+
+	return observations, nil
+}
 func IsAdmin(dsc Client, phone string) (bool, error) {
 
 	user, err := GetUserByPhone(dsc, phone)
