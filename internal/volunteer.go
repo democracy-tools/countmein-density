@@ -61,7 +61,6 @@ func (h *Handle) ChangePolygon(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
 	if _, ok := availablePolygons[newPolygon]; !ok {
 		w.Write([]byte(fmt.Sprintf("Polygon %s is not available", newPolygon)))
 		w.WriteHeader(http.StatusBadRequest)
@@ -91,6 +90,7 @@ func (h *Handle) ChangePolygon(w http.ResponseWriter, r *http.Request) {
 			Name:  err.Error(),
 		}
 	}
+
 	msg := fmt.Sprintf("Volunteer %s (%s) changed polygon from %s to %s demonstration %s",
 		user.Name, user.Phone, oldPolygon, newPolygon, demonstration.Id)
 	log.Info(msg)

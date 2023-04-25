@@ -143,28 +143,14 @@ func changePolygon(phone string, polygon string) error {
 	if sliceContains(strings.Split(strings.ReplaceAll(user.Preference, " ", ""), ","), polygon) {
 		return fmt.Errorf("%s (%s) asked to change into polygon '%s', but has it as part of preference '%s'", user.Name, user.Phone, polygon, user.Preference)
 	}
-	err = dsc.Put(ds.KindUser, user.Id, &ds.User{
-		Id:         user.Id,
-		Phone:      user.Phone,
-		Name:       user.Name,
-		Preference: getPreference(user.Preference, polygon),
-		Time:       user.Time,
-		Role:       user.Role,
-	})
+
+	user.Preference = concatenatePreference(user.Preference, polygon)
+	err = dsc.Put(ds.KindUser, user.Id, &user)
 	if err != nil {
 		return err
 	}
 
 	return internal.NewHandle(dsc, whatsapp.NewClientWrapper()).Join(user)
-}
-
-func getPreference(preference string, polygon string) string {
-
-	if preference == "" {
-		return polygon
-	}
-
-	return fmt.Sprintf("%s,%s", preference, polygon)
 }
 
 func sliceContains(slice []string, item string) bool {
@@ -176,4 +162,13 @@ func sliceContains(slice []string, item string) bool {
 	}
 
 	return false
+}
+
+func concatenatePreference(preference string, polygon string) string {
+
+	if preference == "" {
+		return polygon
+	}
+
+	return fmt.Sprintf("%s,%s", preference, polygon)
 }
