@@ -24,9 +24,11 @@ import (
 func main() {
 
 	const (
-		observations    = "/observations"
-		users           = "/users/{user-id}"
-		whatsappWebhook = "/whatsapp"
+		observations     = "/observations"
+		users            = "/users/{user-id}"
+		volunteers       = "/volunteers/{user-id}"
+		volunteerPolygon = "/volunteers/{user-id}/polygons/{polygon}"
+		whatsappWebhook  = "/whatsapp"
 		// join            = "/demonstrations/{demonstration-id}/users/{user-id}"
 	)
 
@@ -38,14 +40,20 @@ func main() {
 		[]string{
 			observations, observations, observations,
 			users, users,
+			volunteers, volunteers,
+			volunteerPolygon, volunteerPolygon,
 			whatsappWebhook, whatsappWebhook,
 		}, []string{
 			http.MethodPost, http.MethodGet, http.MethodOptions,
 			http.MethodDelete, http.MethodOptions,
+			http.MethodGet, http.MethodOptions,
+			http.MethodPut, http.MethodOptions,
 			http.MethodGet, http.MethodPost,
 		}, []func(http.ResponseWriter, *http.Request){
 			access(handle.CreateObservation), access(handle.GetObservations), options([]string{http.MethodPost, http.MethodGet}),
 			access(handle.DeleteUser), options([]string{http.MethodDelete}),
+			access(handle.GetVolunteer), options([]string{http.MethodGet}),
+			access(handle.ChangePolygon), options([]string{http.MethodPut}),
 			handle.WhatsAppVerification, handle.WhatsAppEventHandler,
 		},
 	)
