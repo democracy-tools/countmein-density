@@ -2,7 +2,6 @@ package job
 
 import (
 	"fmt"
-	"strings"
 	"testing"
 
 	"github.com/democracy-tools/countmein-density/internal"
@@ -140,35 +139,11 @@ func changePolygon(phone string, polygon string) error {
 		return err
 	}
 
-	if sliceContains(strings.Split(strings.ReplaceAll(user.Preference, " ", ""), ","), polygon) {
-		return fmt.Errorf("%s (%s) asked to change into polygon '%s', but has it as part of preference '%s'", user.Name, user.Phone, polygon, user.Preference)
-	}
-
-	user.Preference = concatenatePreference(user.Preference, polygon)
+	user.Preference = internal.ConcatenatePreference(user.Preference, polygon)
 	err = dsc.Put(ds.KindUser, user.Id, &user)
 	if err != nil {
 		return err
 	}
 
 	return internal.NewHandle(dsc, whatsapp.NewClientWrapper()).Join(user)
-}
-
-func sliceContains(slice []string, item string) bool {
-
-	for _, curr := range slice {
-		if curr == item {
-			return true
-		}
-	}
-
-	return false
-}
-
-func concatenatePreference(preference string, polygon string) string {
-
-	if preference == "" {
-		return polygon
-	}
-
-	return fmt.Sprintf("%s,%s", preference, polygon)
 }

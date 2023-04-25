@@ -123,7 +123,7 @@ func (c *ClientWrapper) Put(kind Kind, id string, src interface{}) error {
 
 	_, err := c.ds.Put(context.Background(), getKey(kind, id), src)
 	if err != nil {
-		log.Errorf("failed to create '%s/%s' item '%+v' type: '%T' with '%v'", namespace, kind, src, src, err)
+		log.Errorf("failed to update '%s/%s' item '%+v' type: '%T' with '%v'", namespace, kind, src, src, err)
 	} else {
 		log.Debugf("Item '%s/%s' created: '%+v' type: '%T'", namespace, kind, src, src)
 	}

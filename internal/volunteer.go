@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
 	"github.com/gorilla/mux"
@@ -89,10 +90,44 @@ func (h *Handle) ChangePolygon(w http.ResponseWriter, r *http.Request) {
 			Phone: "na",
 			Name:  err.Error(),
 		}
+	} else {
+		if preference, ok := ConcatenatePreference(user.Preference, newPolygon); ok {
+			user.Preference = preference
+			_ = h.dsc.Put(ds.KindUser, user.Id, &user)
+		}
 	}
 
 	msg := fmt.Sprintf("Volunteer %s (%s) changed polygon from %s to %s demonstration %s",
 		user.Name, user.Phone, oldPolygon, newPolygon, demonstration.Id)
 	log.Info(msg)
 	h.sc.Info(msg)
+}
+
+func ConcatenatePreference(preference string, polygon string) (string, bool) {
+
+	if preference == "" {
+		return polygon, true
+	}
+
+	all := strings.Split(strings.ReplaceAll(preference, " ", ""), ",")
+	if len(all) > 7 {
+		return polygon, true
+	}
+
+	if sliceContains(all, polygon) {
+		return preference, false
+	}
+
+	return fmt.Sprintf("%s,%s", preference, polygon), true
+}
+
+func sliceContains(slice []string, item string) bool {
+
+	for _, curr := range slice {
+		if curr == item {
+			return true
+		}
+	}
+
+	return false
 }
