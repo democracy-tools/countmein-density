@@ -4,6 +4,7 @@ import (
 	"regexp"
 
 	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -23,6 +24,17 @@ func validateToken(token string) bool {
 	}
 	if !res {
 		logrus.Infof("invalid token '%s'", token)
+	}
+
+	return res
+}
+
+func validatePolygon(polygon string) bool {
+
+	res, err := regexp.MatchString("^[A-Z]+[1-9][0-9]{0,2}[A-Z]?$", polygon)
+	if err != nil {
+		log.Errorf("failed to validate polygon '%s' using regexp with '%v'", polygon, err)
+		return false
 	}
 
 	return res

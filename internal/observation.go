@@ -5,12 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"regexp"
 	"sort"
 	"time"
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -112,13 +112,8 @@ func validateObservation(observation *ds.Observation) bool {
 		return false
 	}
 
-	match, err := regexp.MatchString("^[A-Z]+[1-9][0-9]{0,2}[A-Z]?$", observation.Polygon)
-	if err != nil {
-		log.Errorf("failed to validate polygon '%s' using regexp with '%v'", observation.Polygon, err)
-		return false
-	}
-	if !match {
-		log.Infof("invalid observation polygon '%s' user '%s'", observation.Polygon, observation.User)
+	if !validatePolygon(observation.Polygon) {
+		logrus.Infof("invalid observation polygon '%s' user '%s'", observation.Polygon, observation.User)
 		return false
 	}
 

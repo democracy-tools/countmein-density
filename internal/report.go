@@ -10,6 +10,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Send thanks to all volunteers
 func report(dsc ds.Client, wac whatsapp.Client, sc slack.Client, from string, message string) error {
 
 	err := validateReportUser(dsc, from, message)

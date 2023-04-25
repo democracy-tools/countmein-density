@@ -26,7 +26,7 @@ func (h *Handle) Join(user *ds.User) error {
 		return err
 	}
 	if len(available) == 0 {
-		err = fmt.Errorf("no available polygon found for '%s: %s'", user.Name, user.Phone)
+		err = fmt.Errorf("no available polygon found, user '%s (%s)'", user.Name, user.Phone)
 		log.Info(err.Error())
 		return err
 	}
