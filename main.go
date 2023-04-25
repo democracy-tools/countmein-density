@@ -28,6 +28,7 @@ func main() {
 		users            = "/users/{user-id}"
 		volunteers       = "/volunteers/{user-id}"
 		volunteerPolygon = "/volunteers/{user-id}/polygons/{polygon}"
+		polygons         = "/polygons"
 		whatsappWebhook  = "/whatsapp"
 		// join            = "/demonstrations/{demonstration-id}/users/{user-id}"
 	)
@@ -42,18 +43,21 @@ func main() {
 			users, users,
 			volunteers, volunteers,
 			volunteerPolygon, volunteerPolygon,
+			polygons, polygons,
 			whatsappWebhook, whatsappWebhook,
 		}, []string{
 			http.MethodPost, http.MethodGet, http.MethodOptions,
 			http.MethodDelete, http.MethodOptions,
 			http.MethodGet, http.MethodOptions,
 			http.MethodPut, http.MethodOptions,
+			http.MethodGet, http.MethodOptions,
 			http.MethodGet, http.MethodPost,
 		}, []func(http.ResponseWriter, *http.Request){
 			access(handle.CreateObservation), access(handle.GetObservations), options([]string{http.MethodPost, http.MethodGet}),
 			access(handle.DeleteUser), options([]string{http.MethodDelete}),
 			access(handle.GetVolunteer), options([]string{http.MethodGet}),
 			access(handle.ChangePolygon), options([]string{http.MethodPut}),
+			access(handle.GetAvailablePolygons), options([]string{http.MethodGet}),
 			handle.WhatsAppVerification, handle.WhatsAppEventHandler,
 		},
 	)
