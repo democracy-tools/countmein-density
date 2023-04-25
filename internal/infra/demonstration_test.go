@@ -139,7 +139,12 @@ func changePolygon(phone string, polygon string) error {
 		return err
 	}
 
-	user.Preference = internal.ConcatenatePreference(user.Preference, polygon)
+	preference, ok := internal.ConcatenatePreference(user.Preference, polygon)
+	if !ok {
+		return fmt.Errorf("user polygon '%s' already part of preference", polygon)
+	}
+
+	user.Preference = preference
 	err = dsc.Put(ds.KindUser, user.Id, &user)
 	if err != nil {
 		return err
