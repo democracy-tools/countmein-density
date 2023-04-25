@@ -16,8 +16,7 @@ type Client interface {
 	Send(phone string, body string) error
 	SendOnboardingTemplate(phone string, userId string) error
 	SendInvitationTemplate(to string, demonstration string, userId string) error
-	SendDemonstrationTemplate(to string, demonstration string, userId string,
-		user string, polygon string, location string) error
+	SendDemonstrationTemplate(to string, userId string) error
 	SendBodyParamsTemplate(template string, to string, params []string) error
 }
 
@@ -59,15 +58,12 @@ func (c *ClientWrapper) SendInvitationTemplate(to string, demonstration string, 
 	return send(c.from, to, &buf, c.auth)
 }
 
-func (c *ClientWrapper) SendDemonstrationTemplate(to string, demonstration string, userId string,
-	user string, polygon string, location string) error {
+func (c *ClientWrapper) SendDemonstrationTemplate(to string, userId string) error {
 
 	var buf bytes.Buffer
-	err := json.NewEncoder(&buf).Encode(newTemplate("demonstration2", to,
-		fmt.Sprintf("?demonstration=%s&user-id=%s&user=%s&polygon=%s&q=%s",
-			demonstration, userId, user, polygon, location), nil))
+	err := json.NewEncoder(&buf).Encode(newTemplate("demonstration2", to, fmt.Sprintf("?user-id=%s", userId), nil))
 	if err != nil {
-		err = fmt.Errorf("failed to encode whatsapp 'demonstration2' message request with '%v' user '%s (%s)'", err, user, userId)
+		err = fmt.Errorf("failed to encode whatsapp 'demonstration2' message request with '%v' phone '%s' user '%s'", err, to, userId)
 		logrus.Error(err.Error())
 		return err
 	}

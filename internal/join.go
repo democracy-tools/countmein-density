@@ -2,7 +2,6 @@ package internal
 
 import (
 	"fmt"
-	"net/url"
 	"strings"
 	"time"
 
@@ -49,7 +48,7 @@ func (h *Handle) Join(user *ds.User) error {
 		return err
 	}
 
-	err = h.wac.SendDemonstrationTemplate(user.Phone, demonstration.Id, user.Id, url.QueryEscape(user.Name), polygon, location)
+	err = h.wac.SendDemonstrationTemplate(user.Phone, user.Id)
 	if err != nil {
 		return err
 	}

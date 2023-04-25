@@ -18,8 +18,7 @@ func (c *InMemoryClient) SendInvitationTemplate(to string, demonstration string,
 	return nil
 }
 
-func (c *InMemoryClient) SendDemonstrationTemplate(to string, demonstration string, userId string,
-	user string, polygon string, location string) error {
+func (c *InMemoryClient) SendDemonstrationTemplate(to string, userId string) error {
 	return nil
 }
 
