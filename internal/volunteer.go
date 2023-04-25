@@ -34,9 +34,20 @@ func (h *Handle) GetVolunteer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(volunteer)
+	var user ds.User
+	err = h.dsc.Get(ds.KindVolunteer, userId, &user)
 	if err != nil {
-		logrus.Errorf("failed to encode volunteer '%+v' with '%v'", volunteer, err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(map[string]string{
+		"user":     user.Name,
+		"polygon":  volunteer.Polygon,
+		"location": volunteer.Location,
+	})
+	if err != nil {
+		logrus.Errorf("failed to encode volunteer response with '%v'", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

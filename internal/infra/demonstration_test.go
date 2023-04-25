@@ -141,7 +141,7 @@ func changePolygon(phone string, polygon string) error {
 
 	preference, ok := internal.ConcatenatePreference(user.Preference, polygon)
 	if !ok {
-		return fmt.Errorf("user polygon '%s' already part of preference", polygon)
+		return fmt.Errorf("user polygon '%s' is already part of preference", polygon)
 	}
 
 	user.Preference = preference
