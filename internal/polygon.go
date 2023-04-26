@@ -21,7 +21,17 @@ func (h *Handle) GetAvailablePolygons(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(res)
+	json.NewEncoder(w).Encode(map[string][]string{"polygons": toPolygonSlice(res)})
+}
+
+func toPolygonSlice(polygons map[string]string) []string {
+
+	var res []string
+	for curr := range polygons {
+		res = append(res, curr)
+	}
+
+	return res
 }
 
 func getAvailablePolygons(dsc ds.Client, demonstration string) (map[string]string, error) {
