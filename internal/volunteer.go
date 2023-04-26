@@ -35,7 +35,7 @@ func (h *Handle) GetVolunteer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var user ds.User
-	err = h.dsc.Get(ds.KindVolunteer, userId, &user)
+	err = h.dsc.Get(ds.KindUser, userId, &user)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
