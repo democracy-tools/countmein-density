@@ -111,7 +111,7 @@ func (h *Handle) ChangePolygon(w http.ResponseWriter, r *http.Request) {
 	msg := fmt.Sprintf("Volunteer %s (%s) changed polygon from %s to %s demonstration %s",
 		user.Name, user.Phone, oldPolygon, newPolygon, demonstration.Id)
 	log.Info(msg)
-	h.sc.Info(msg)
+	h.sc.Debug(msg)
 }
 
 func ConcatenatePreference(preference string, polygon string) (string, bool) {
