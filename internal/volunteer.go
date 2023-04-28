@@ -57,7 +57,7 @@ func (h *Handle) ChangePolygon(w http.ResponseWriter, r *http.Request) {
 
 	userId, newPolygon := mux.Vars(r)["user-id"], mux.Vars(r)["polygon"]
 	if !validateToken(userId) || !validatePolygon(newPolygon) {
-		logrus.Infof("[ChangePolygon] invalid polygon '%s' user '%s'", newPolygon, userId)
+		logrus.Infof("[ChangePolygon] invalid polygon '%s' or user '%s'", newPolygon, userId)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -73,7 +73,8 @@ func (h *Handle) ChangePolygon(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	if _, ok := availablePolygons[newPolygon]; !ok {
+	newLocation, ok := availablePolygons[newPolygon]
+	if !ok {
 		w.Write([]byte(fmt.Sprintf("Polygon %s is not available", newPolygon)))
 		w.WriteHeader(http.StatusBadRequest)
 		return
@@ -87,6 +88,7 @@ func (h *Handle) ChangePolygon(w http.ResponseWriter, r *http.Request) {
 	}
 	oldPolygon := volunteer.Polygon
 	volunteer.Polygon = newPolygon
+	volunteer.Location = newLocation
 	err = h.dsc.Put(ds.KindVolunteer, ds.GetVolunteerId(demonstration.Id, userId), &volunteer)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
