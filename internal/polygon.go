@@ -3,6 +3,7 @@ package internal
 import (
 	"encoding/json"
 	"net/http"
+	"sort"
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
 )
@@ -21,15 +22,16 @@ func (h *Handle) GetAvailablePolygons(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	json.NewEncoder(w).Encode(map[string][]string{"polygons": toPolygonSlice(res)})
+	json.NewEncoder(w).Encode(map[string][]string{"polygons": toSortedPolygonSlice(res)})
 }
 
-func toPolygonSlice(polygons map[string]string) []string {
+func toSortedPolygonSlice(polygons map[string]string) []string {
 
 	var res []string
 	for curr := range polygons {
 		res = append(res, curr)
 	}
+	sort.Strings(res)
 
 	return res
 }
