@@ -15,7 +15,7 @@ import (
 type Client interface {
 	Send(phone string, body string) error
 	SendOnboardingTemplate(phone string, userId string) error
-	SendInvitationTemplate(to string, demonstration string, userId string) error
+	SendInvitationTemplate(to string) error
 	SendDemonstrationTemplate(to string, userId string) error
 	SendBodyParamsTemplate(template string, to string, params []string) error
 }
@@ -45,7 +45,7 @@ func (c *ClientWrapper) SendOnboardingTemplate(to string, userId string) error {
 	return send(c.from, to, &buf, c.auth)
 }
 
-func (c *ClientWrapper) SendInvitationTemplate(to string, demonstration string, userId string) error {
+func (c *ClientWrapper) SendInvitationTemplate(to string) error {
 
 	var buf bytes.Buffer
 	err := json.NewEncoder(&buf).Encode(newTemplate("attend_button", to, "", nil))

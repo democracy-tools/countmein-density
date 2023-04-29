@@ -1,25 +1,15 @@
 package infra
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/democracy-tools/countmein-density/internal"
 	"github.com/democracy-tools/countmein-density/internal/ds"
 	"github.com/democracy-tools/countmein-density/internal/env"
 	whatsapp "github.com/democracy-tools/countmein-density/internal/whatapp"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
-	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 )
-
-func TestChangePolygon(t *testing.T) {
-
-	// env.Initialize()
-	t.Skip("infra")
-	require.NoError(t, changePolygon("972501234567", "A78"))
-}
 
 func TestVolunteerCount(t *testing.T) {
 
@@ -85,11 +75,10 @@ func inviteAllUsers(dsc ds.Client, demonstrationId string) error {
 func inviteVolunteers(dsc ds.Client, demonstrationId string, users []ds.User) error {
 
 	wac := whatsapp.NewClientWrapper()
-	log.Info("Sending invitations...")
+	logrus.Infof("Sending invitations... demonstration '%s'", demonstrationId)
 	for _, currUser := range users {
-		link := fmt.Sprintf("%s?user=%s&demonstration=%s", internal.JoinUrl, currUser.Id, demonstrationId)
-		log.Infof("%s (%s): %s\n%s", currUser.Name, currUser.Id, currUser.Phone, link)
-		err := wac.SendInvitationTemplate(currUser.Phone, demonstrationId, currUser.Id)
+		logrus.Infof("%s (%s)", currUser.Name, currUser.Phone)
+		err := wac.SendInvitationTemplate(currUser.Phone)
 		if err != nil {
 			return err
 		}
@@ -101,7 +90,7 @@ func inviteVolunteers(dsc ds.Client, demonstrationId string, users []ds.User) er
 func createDemonstrationInDatastore(dsc ds.Client) (string, error) {
 
 	id := uuid.NewString()
-	log.Infof("Creating demonstration '%s'...", id)
+	logrus.Infof("Creating demonstration '%s'...", id)
 	err := dsc.Put(ds.KindDemonstration, ds.DemonstrationKaplan,
 		&ds.Demonstration{Id: id, Name: ds.DemonstrationKaplan})
 	if err != nil {
@@ -128,27 +117,4 @@ func countVolunteers() error {
 	logrus.Infof("Volunteer count: %d", len(volunteers))
 
 	return nil
-}
-
-func changePolygon(phone string, polygon string) error {
-
-	dsc := ds.NewClientWrapper(env.Project)
-
-	user, err := ds.GetUserByPhone(dsc, phone)
-	if err != nil {
-		return err
-	}
-
-	preference, ok := internal.ConcatenatePreference(user.Preference, polygon)
-	if !ok {
-		return fmt.Errorf("user polygon '%s' is already part of preference", polygon)
-	}
-
-	user.Preference = preference
-	err = dsc.Put(ds.KindUser, user.Id, &user)
-	if err != nil {
-		return err
-	}
-
-	return internal.NewHandle(dsc, whatsapp.NewClientWrapper()).Join(user)
 }
