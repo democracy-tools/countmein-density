@@ -76,12 +76,12 @@ func getParticipants(dsc ds.Client, sc slack.Client, demonstration string) (map[
 
 	// *** datastore does not support join and group-by ***
 
-	var observations []ds.Observation
-	err := dsc.GetFilter(ds.KindObservation, []ds.FilterField{{
-		Name:     "demonstration",
+	var volunteers []ds.Volunteer
+	err := dsc.GetFilter(ds.KindVolunteer, []ds.FilterField{{
+		Name:     "demonstration_id",
 		Operator: "=",
 		Value:    demonstration,
-	}}, &observations)
+	}}, &volunteers)
 	if err != nil {
 		return nil, err
 	}
@@ -97,12 +97,12 @@ func getParticipants(dsc ds.Client, sc slack.Client, demonstration string) (map[
 	}
 
 	participantIdToPhone := make(map[string]string)
-	for _, currObservation := range observations {
-		currPhone, ok := userIdToPhone[currObservation.User]
+	for _, currVolunteer := range volunteers {
+		currPhone, ok := userIdToPhone[currVolunteer.UserId]
 		if ok {
-			participantIdToPhone[currObservation.User] = currPhone
+			participantIdToPhone[currVolunteer.UserId] = currPhone
 		} else {
-			msg := fmt.Sprintf("user '%s' sent observation '%+v', but did not found in datastore user entity", currObservation.User, currObservation)
+			msg := fmt.Sprintf("user '%s' sent observation '%+v', but did not found in datastore user entity", currVolunteer.UserId, currVolunteer)
 			logrus.Error(msg)
 			sc.Debug(msg)
 		}
