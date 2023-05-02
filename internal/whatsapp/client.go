@@ -16,6 +16,7 @@ type Client interface {
 	Send(phone string, body string) error
 	SendOnboardingTemplate(phone string, userId string) error
 	SendInvitationTemplate(to string) error
+	SendRegretInvitationTemplate(to string) error
 	SendDemonstrationTemplate(to string, userId string) error
 	SendBodyParamsTemplate(template string, to string, params []string) error
 }
@@ -51,6 +52,19 @@ func (c *ClientWrapper) SendInvitationTemplate(to string) error {
 	err := json.NewEncoder(&buf).Encode(newTemplate("attend_button", to, "", nil))
 	if err != nil {
 		err = fmt.Errorf("failed to encode whatsapp 'attend_button' message request with '%v' phone '%s'", err, to)
+		logrus.Error(err.Error())
+		return err
+	}
+
+	return send(c.from, to, &buf, c.auth)
+}
+
+func (c *ClientWrapper) SendRegretInvitationTemplate(to string) error {
+
+	var buf bytes.Buffer
+	err := json.NewEncoder(&buf).Encode(newTemplate("not_this_time", to, "", nil))
+	if err != nil {
+		err = fmt.Errorf("failed to encode whatsapp 'not_this_time' message request with '%v' phone '%s'", err, to)
 		logrus.Error(err.Error())
 		return err
 	}

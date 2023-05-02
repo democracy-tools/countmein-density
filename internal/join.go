@@ -13,7 +13,17 @@ var priority = []string{"A5", "A4", "A3", "A13", "A12", "A11", "A7", "A7B", "A8"
 	"A20", "A24", "A23", "A14A", "A14", "A14B", "A17", "A17B", "K1", "K1A", "K2", "K2B", "K3", "K4", "K5", "K6", "K7", "K9", "K10", "K11",
 	"K12", "K13", "K14", "K19", "K20", "K21", "K22", "K26"}
 
-func (h *Handle) Join(user *ds.User) error {
+func (h *Handle) Join(phone string) error {
+
+	user, err := ds.GetUserByPhone(h.dsc, phone)
+	if err != nil {
+		return err
+	}
+
+	return h.doJoin(user)
+}
+
+func (h *Handle) doJoin(user *ds.User) error {
 
 	demonstration, err := ds.GetKaplanDemonstration(h.dsc)
 	if err != nil {
@@ -57,16 +67,6 @@ func (h *Handle) Join(user *ds.User) error {
 	log.Info(msg)
 	h.sc.Info(msg)
 	return nil
-}
-
-func (h *Handle) join(phone string) error {
-
-	user, err := ds.GetUserByPhone(h.dsc, phone)
-	if err != nil {
-		return err
-	}
-
-	return h.Join(user)
 }
 
 func getPolygonByPriority(available map[string]string, preferred string) (string, string) {

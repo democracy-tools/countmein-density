@@ -73,9 +73,14 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 						h.sc.Info(fmt.Sprintf("User deleted: %s (%s)", contact.Profile.Name, contact.WaID))
 					}
 				} else if isJoinRequestButton(message.Button.Text) {
-					err := h.join(contact.WaID)
+					err := h.Join(contact.WaID)
 					if err != nil {
-						h.sc.Info(fmt.Sprintf("User %s (%s) failed to join demonstration with %v", contact.Profile.Name, contact.WaID, err))
+						h.sc.Debug(fmt.Sprintf("User %s (%s) failed to join demonstration with %v", contact.Profile.Name, contact.WaID, err))
+					}
+				} else if isJoinNotThisTimeButton(message.Button.Text) {
+					err := h.wac.SendRegretInvitationTemplate(contact.WaID)
+					if err != nil {
+						h.sc.Debug(fmt.Sprintf("Failed to send regret invitation to %s (%s) with %v", contact.Profile.Name, contact.WaID, err))
 					}
 				}
 			}
@@ -153,5 +158,10 @@ func isReportRequest(message string) bool {
 
 func isJoinRequestButton(message string) bool {
 
-	return message == "כן, אני בעניין"
+	return message == "כן, אני בעניין" || message == "להצטרפות"
+}
+
+func isJoinNotThisTimeButton(message string) bool {
+
+	return message == "לא הפעם"
 }

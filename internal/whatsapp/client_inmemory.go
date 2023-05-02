@@ -18,6 +18,10 @@ func (c *InMemoryClient) SendInvitationTemplate(to string) error {
 	return nil
 }
 
+func (c *InMemoryClient) SendRegretInvitationTemplate(to string) error {
+	return nil
+}
+
 func (c *InMemoryClient) SendDemonstrationTemplate(to string, userId string) error {
 	return nil
 }
