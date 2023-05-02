@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
-	whatsapp "github.com/democracy-tools/countmein-density/internal/whatapp"
+	whatsapp "github.com/democracy-tools/countmein-density/internal/whatsapp"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"

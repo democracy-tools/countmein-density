@@ -3,7 +3,7 @@ package infra
 import (
 	"testing"
 
-	whatsapp "github.com/democracy-tools/countmein-density/internal/whatapp"
+	whatsapp "github.com/democracy-tools/countmein-density/internal/whatsapp"
 	"github.com/stretchr/testify/require"
 )
 

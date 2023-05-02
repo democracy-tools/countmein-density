@@ -6,7 +6,7 @@ import (
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
 	"github.com/democracy-tools/countmein-density/internal/slack"
-	whatsapp "github.com/democracy-tools/countmein-density/internal/whatapp"
+	whatsapp "github.com/democracy-tools/countmein-density/internal/whatsapp"
 	"github.com/sirupsen/logrus"
 )
 

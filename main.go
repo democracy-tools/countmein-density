@@ -14,7 +14,7 @@ import (
 	"github.com/democracy-tools/countmein-density/internal"
 	"github.com/democracy-tools/countmein-density/internal/ds"
 	"github.com/democracy-tools/countmein-density/internal/env"
-	whatsapp "github.com/democracy-tools/countmein-density/internal/whatapp"
+	whatsapp "github.com/democracy-tools/countmein-density/internal/whatsapp"
 	"github.com/gorilla/mux"
 	"github.com/onrik/logrus/filename"
 	log "github.com/sirupsen/logrus"

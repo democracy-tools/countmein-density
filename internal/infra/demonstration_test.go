@@ -5,7 +5,7 @@ import (
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
 	"github.com/democracy-tools/countmein-density/internal/env"
-	whatsapp "github.com/democracy-tools/countmein-density/internal/whatapp"
+	whatsapp "github.com/democracy-tools/countmein-density/internal/whatsapp"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"

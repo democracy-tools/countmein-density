@@ -11,7 +11,7 @@ import (
 
 	"github.com/democracy-tools/countmein-density/internal"
 	"github.com/democracy-tools/countmein-density/internal/ds"
-	whatsapp "github.com/democracy-tools/countmein-density/internal/whatapp"
+	whatsapp "github.com/democracy-tools/countmein-density/internal/whatsapp"
 	"github.com/stretchr/testify/require"
 )
 
