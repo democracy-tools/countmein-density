@@ -17,7 +17,7 @@ import (
 	whatsapp "github.com/democracy-tools/countmein-density/internal/whatsapp"
 	"github.com/gorilla/mux"
 	"github.com/onrik/logrus/filename"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/writer"
 )
 
@@ -30,7 +30,6 @@ func main() {
 		volunteerPolygon = "/volunteers/{user-id}/polygons/{polygon}"
 		polygons         = "/polygons"
 		whatsappWebhook  = "/whatsapp"
-		// join            = "/demonstrations/{demonstration-id}/users/{user-id}"
 	)
 
 	handle := internal.NewHandle(
@@ -110,9 +109,9 @@ func serveMulti(routers []*mux.Router, ports []string) {
 			Handler:      routers[i],
 		})
 		go func(server *http.Server, port string) {
-			log.Infof("listening on port %q", port)
+			logrus.Debugf("listening on port %q", port)
 			if err := server.ListenAndServe(); err != nil {
-				log.Error(err)
+				logrus.Error(err)
 			}
 		}(servers[i], ports[i])
 	}
@@ -126,7 +125,7 @@ func serveMulti(routers []*mux.Router, ports []string) {
 		shutdown(currServer)
 	}
 
-	log.Info("exit")
+	logrus.Info("exit")
 	os.Exit(0)
 }
 
@@ -135,54 +134,54 @@ func shutdown(server *http.Server) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
 	defer cancel()
 	if err := server.Shutdown(ctx); err != nil {
-		log.Errorf("failed to shutdown server with %q", err)
+		logrus.Errorf("failed to shutdown server with %q", err)
 	}
 }
 
 func logVersion() {
 
-	log.Infof("%s/%s, %s", runtime.GOOS, runtime.GOARCH, runtime.Version())
+	logrus.Infof("%s/%s, %s", runtime.GOOS, runtime.GOARCH, runtime.Version())
 }
 
 func initLogger() {
 
-	// log.SetReportCaller(true)
+	// logrus.SetReportCaller(true)
 	initLoggerOutput()
-	log.SetLevel(getLogLevel())
+	logrus.SetLevel(getLogLevel())
 }
 
 func initLoggerOutput() {
 
-	log.SetOutput(io.Discard) // Send all logs to nowhere by default - this is required to avoid duplicate log messages
-	log.AddHook(filename.NewHook())
-	log.AddHook(&writer.Hook{ // Send logs with level higher than warning to stderr
+	logrus.SetOutput(io.Discard) // Send all logs to nowhere by default - this is required to avoid duplicate log messages
+	logrus.AddHook(filename.NewHook())
+	logrus.AddHook(&writer.Hook{ // Send logs with level higher than warning to stderr
 		Writer: os.Stderr,
-		LogLevels: []log.Level{
-			log.PanicLevel,
-			log.FatalLevel,
-			log.ErrorLevel,
+		LogLevels: []logrus.Level{
+			logrus.PanicLevel,
+			logrus.FatalLevel,
+			logrus.ErrorLevel,
 		},
 	})
-	log.AddHook(&writer.Hook{ // Send info and debug logs to stdout
+	logrus.AddHook(&writer.Hook{ // Send info and debug logs to stdout
 		Writer: os.Stdout,
-		LogLevels: []log.Level{
-			log.WarnLevel,
-			log.InfoLevel,
-			log.DebugLevel,
-			log.TraceLevel,
+		LogLevels: []logrus.Level{
+			logrus.WarnLevel,
+			logrus.InfoLevel,
+			logrus.DebugLevel,
+			logrus.TraceLevel,
 		},
 	})
 }
 
-func getLogLevel() log.Level {
+func getLogLevel() logrus.Level {
 
 	level := os.Getenv("LOG_LEVEL")
 	if strings.EqualFold(level, "debug") {
-		return log.DebugLevel
+		return logrus.DebugLevel
 	} else if strings.EqualFold(level, "warn") {
-		return log.WarnLevel
+		return logrus.WarnLevel
 	} else if strings.EqualFold(level, "error") {
-		return log.ErrorLevel
+		return logrus.ErrorLevel
 	}
-	return log.InfoLevel
+	return logrus.InfoLevel
 }
