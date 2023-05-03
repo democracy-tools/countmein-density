@@ -19,12 +19,8 @@ func (h *Handle) WhatsAppVerification(w http.ResponseWriter, r *http.Request) {
 	token := key.Get("hub.verify_token")
 	challenge := key.Get("hub.challenge")
 
-	if len(mode) > 0 && len(token) > 0 {
-		if mode == "subscribe" && token == h.whatsappVerificationToken {
-			w.Write([]byte(challenge))
-			return
-		}
-		w.WriteHeader(http.StatusForbidden)
+	if mode == "subscribe" && token == h.whatsappVerificationToken {
+		w.Write([]byte(challenge))
 		return
 	}
 	w.WriteHeader(http.StatusBadRequest)
