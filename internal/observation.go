@@ -23,11 +23,14 @@ func (h *Handle) CreateObservation(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	observation.Time = time.Now().Unix()
+	observation.Demonstration = getDemonstrationId(h.dsc)
 	if !validateObservation(&observation) {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	err = h.dsc.Put(ds.KindObservation, uuid.NewString(), &observation)
 	if err != nil {
 		log.Errorf("failed to insert new observation '%+v' into datastore with '%v'", observation, err)
@@ -133,4 +136,13 @@ func validateObservation(observation *ds.Observation) bool {
 	}
 
 	return true
+}
+
+func getDemonstrationId(dsc ds.Client) string {
+
+	res, err := ds.GetKaplanDemonstration(dsc)
+	if err != nil {
+		return "na"
+	}
+	return res.Id
 }
