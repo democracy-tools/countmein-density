@@ -61,14 +61,7 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 			} else if message.Type == whatsapp.TypeButton {
-				if isUnsubscribeRequestButton(message.Button.Text) {
-					err := deleteUser(h.dsc, contact.WaID)
-					if err != nil {
-						h.sc.Info(fmt.Sprintf("Failed to delete user %s (%s) with %v", contact.Profile.Name, contact.WaID, err))
-					} else {
-						h.sc.Info(fmt.Sprintf("User deleted: %s (%s)", contact.Profile.Name, contact.WaID))
-					}
-				} else if isJoinRequestButton(message.Button.Text) {
+				if isJoinRequestButton(message.Button.Text) {
 					err := h.Join(contact.WaID)
 					if err != nil {
 						h.sc.Debug(fmt.Sprintf("User %s (%s) failed to join demonstration with %v", contact.Profile.Name, contact.WaID, err))
@@ -131,11 +124,6 @@ func buildMessage(message whatsapp.WebhookMessage) ([]byte, error) {
 		return nil, err
 	}
 	return pretty, nil
-}
-
-func isUnsubscribeRequestButton(message string) bool {
-
-	return message == "בבקשה להסיר אותי"
 }
 
 func isRegisterRequest(message string) bool {
