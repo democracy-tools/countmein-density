@@ -13,7 +13,7 @@ import (
 // Send thanks to all volunteers
 func report(dsc ds.Client, wac whatsapp.Client, sc slack.Client, from string, message string) error {
 
-	err := validateReportUser(dsc, from, message)
+	err := validateUserAdmin(dsc, from, message)
 	if err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func report(dsc ds.Client, wac whatsapp.Client, sc slack.Client, from string, me
 	return nil
 }
 
-func validateReportUser(dsc ds.Client, from string, message string) error {
+func validateUserAdmin(dsc ds.Client, from string, message string) error {
 
 	ok, err := ds.IsAdmin(dsc, from)
 	if err != nil {
@@ -61,10 +61,12 @@ func validateReportUser(dsc ds.Client, from string, message string) error {
 func getReportCount(message string) (string, string, error) {
 
 	split := strings.Split(message, " ")
-	if strings.EqualFold(split[0], "thanks1") {
-		return "thanks", split[1], nil
-	} else if strings.EqualFold(split[0], "thanks2") {
-		return "thanks2", split[1], nil
+	if len(split) == 2 {
+		if strings.EqualFold(split[0], "thanks1") {
+			return "thanks", split[1], nil
+		} else if strings.EqualFold(split[0], "thanks2") {
+			return "thanks2", split[1], nil
+		}
 	}
 
 	err := fmt.Errorf("invalid report message '%s'", message)
