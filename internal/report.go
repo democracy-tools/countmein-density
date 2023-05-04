@@ -85,13 +85,12 @@ func validateUserAdmin(dsc ds.Client, from string, message string) error {
 func getReportDetails(message string) (string, string, string, string, error) {
 
 	split := strings.Split(message, " ")
-	if (len(split) == 3 || len(split) == 4) &&
-		strings.HasPrefix(split[2], "https://") &&
-		(strings.EqualFold(split[0], "thanks1") ||
-			strings.EqualFold(split[0], "thanks4") ||
-			strings.EqualFold(split[0], "thanks5") ||
-			strings.EqualFold(split[0], "thanks6")) {
-		return split[0], split[1], split[2], getAudience(split), nil
+	if (len(split) == 3 || len(split) == 4) && strings.HasPrefix(split[2], "https://") {
+		template := strings.ToLower(split[0])
+		if template == "thanks1" || template == "thanks4" ||
+			template == "thanks5" || template == "thanks6" {
+			return template, split[1], split[2], getAudience(split), nil
+		}
 	}
 
 	err := fmt.Errorf("invalid report message '%s'", message)
