@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -10,7 +11,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Send thanks to all volunteers
+const (
+	AudienceAll = "all"
+	AudienceMe  = "me"
+)
+
+// Send thanks to volunteers
 func report(dsc ds.Client, wac whatsapp.Client, sc slack.Client, from string, message string) error {
 
 	err := validateUserAdmin(dsc, from, message)
@@ -18,25 +24,43 @@ func report(dsc ds.Client, wac whatsapp.Client, sc slack.Client, from string, me
 		return err
 	}
 
-	template, count, url, err := getReportDetails(message)
+	template, count, url, audience, err := getReportDetails(message)
 	if err != nil {
 		return err
 	}
 
-	demonstration, err := ds.GetKaplanDemonstration(dsc)
-	if err != nil {
-		return err
-	}
+	return sendThanksToAudience(dsc, wac, sc, from, template, count, url, audience)
+}
 
-	participantIdToPhone, err := getParticipants(dsc, sc, demonstration.Id)
-	if err != nil {
-		return err
-	}
+func sendThanksToAudience(dsc ds.Client, wac whatsapp.Client, sc slack.Client,
+	from, template, count, url, audience string) error {
 
-	for _, currPhone := range participantIdToPhone {
-		err = wac.SendThanksTemplate(template, currPhone, url, []string{count})
+	if audience == AudienceMe {
+		err := wac.SendThanksTemplate(template, from, url, []string{count})
 		if err != nil {
 			sc.Debug(err.Error())
+			return err
+		}
+	} else { // send to volunteers
+		demonstration, err := ds.GetKaplanDemonstration(dsc)
+		if err != nil {
+			return err
+		}
+
+		participantIdToPhone, err := getParticipants(dsc, sc, demonstration.Id)
+		if err != nil {
+			return err
+		}
+
+		var errs error
+		for _, currPhone := range participantIdToPhone {
+			err = wac.SendThanksTemplate(template, currPhone, url, []string{count})
+			if err != nil {
+				errs = errors.Join(errs, err)
+			}
+		}
+		if errs != nil {
+			return errs
 		}
 	}
 
@@ -58,20 +82,29 @@ func validateUserAdmin(dsc ds.Client, from string, message string) error {
 	return nil
 }
 
-func getReportDetails(message string) (string, string, string, error) {
+func getReportDetails(message string) (string, string, string, string, error) {
 
 	split := strings.Split(message, " ")
-	if len(split) == 3 && strings.HasPrefix(split[2], "https://") &&
+	if (len(split) == 3 || len(split) == 4) &&
+		strings.HasPrefix(split[2], "https://") &&
 		(strings.EqualFold(split[0], "thanks1") ||
 			strings.EqualFold(split[0], "thanks4") ||
 			strings.EqualFold(split[0], "thanks5") ||
 			strings.EqualFold(split[0], "thanks6")) {
-		return split[0], split[1], split[2], nil
+		return split[0], split[1], split[2], getAudience(split), nil
 	}
 
 	err := fmt.Errorf("invalid report message '%s'", message)
 	logrus.Error(err.Error())
-	return "", "", "", err
+	return "", "", "", "", err
+}
+
+func getAudience(message []string) string {
+
+	if len(message) == 4 && message[3] == AudienceMe {
+		return AudienceMe
+	}
+	return AudienceAll
 }
 
 func getParticipants(dsc ds.Client, sc slack.Client, demonstration string) (map[string]string, error) {

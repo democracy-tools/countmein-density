@@ -136,10 +136,11 @@ func isRegisterRequest(message string) bool {
 func isReportRequest(message string) bool {
 
 	split := strings.Split(message, " ")
-	return len(split) == 3 && (strings.EqualFold(split[0], "thanks1") ||
-		strings.EqualFold(split[0], "thanks4") ||
-		strings.EqualFold(split[0], "thanks5") ||
-		strings.EqualFold(split[0], "thanks6"))
+	return (len(split) == 3 || len(split) == 4) &&
+		(strings.EqualFold(split[0], "thanks1") ||
+			strings.EqualFold(split[0], "thanks4") ||
+			strings.EqualFold(split[0], "thanks5") ||
+			strings.EqualFold(split[0], "thanks6"))
 }
 
 func isJoinRequestButton(message string) bool {
