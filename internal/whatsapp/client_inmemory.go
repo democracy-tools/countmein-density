@@ -26,6 +26,10 @@ func (c *InMemoryClient) SendDemonstrationTemplate(to string, userId string) err
 	return nil
 }
 
+func (c *InMemoryClient) SendThanksTemplate(template string, to string, buttonUrlParam string, bodyTextParams []string) error {
+	return nil
+}
+
 func (c *InMemoryClient) SendBodyParamsTemplate(template string, to string, params []string) error {
 	return nil
 }

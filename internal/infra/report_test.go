@@ -6,8 +6,18 @@ import (
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
 	"github.com/democracy-tools/countmein-density/internal/env"
+	"github.com/democracy-tools/countmein-density/internal/whatsapp"
 	"github.com/stretchr/testify/require"
 )
+
+func TestReport_Thanks(t *testing.T) {
+
+	// env.Initialize()
+	t.Skip("infra")
+	require.NoError(t, whatsapp.NewClientWrapper().SendThanksTemplate("thanks5", "972123456789",
+		"https://www.facebook.com/aaa",
+		[]string{"162,000"}))
+}
 
 func TestReport_VolunteerVsObservation(t *testing.T) {
 

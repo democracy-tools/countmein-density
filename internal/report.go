@@ -18,7 +18,7 @@ func report(dsc ds.Client, wac whatsapp.Client, sc slack.Client, from string, me
 		return err
 	}
 
-	template, count, err := getReportCount(message)
+	template, count, url, err := getReportDetails(message)
 	if err != nil {
 		return err
 	}
@@ -34,7 +34,7 @@ func report(dsc ds.Client, wac whatsapp.Client, sc slack.Client, from string, me
 	}
 
 	for _, currPhone := range participantIdToPhone {
-		err = wac.SendBodyParamsTemplate(template, currPhone, []string{count})
+		err = wac.SendThanksTemplate(template, currPhone, url, []string{count})
 		if err != nil {
 			sc.Debug(err.Error())
 		}
@@ -58,20 +58,20 @@ func validateUserAdmin(dsc ds.Client, from string, message string) error {
 	return nil
 }
 
-func getReportCount(message string) (string, string, error) {
+func getReportDetails(message string) (string, string, string, error) {
 
 	split := strings.Split(message, " ")
-	if len(split) == 2 {
-		if strings.EqualFold(split[0], "thanks1") {
-			return "thanks", split[1], nil
-		} else if strings.EqualFold(split[0], "thanks2") {
-			return "thanks2", split[1], nil
-		}
+	if len(split) == 3 && strings.HasPrefix(split[2], "https://") &&
+		(strings.EqualFold(split[0], "thanks1") ||
+			strings.EqualFold(split[0], "thanks4") ||
+			strings.EqualFold(split[0], "thanks5") ||
+			strings.EqualFold(split[0], "thanks6")) {
+		return split[0], split[1], split[2], nil
 	}
 
 	err := fmt.Errorf("invalid report message '%s'", message)
 	logrus.Error(err.Error())
-	return "", "", err
+	return "", "", "", err
 }
 
 func getParticipants(dsc ds.Client, sc slack.Client, demonstration string) (map[string]string, error) {
