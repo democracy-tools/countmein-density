@@ -24,44 +24,56 @@ func report(dsc ds.Client, wac whatsapp.Client, sc slack.Client, from string, me
 		return err
 	}
 
+	return sendThanks(dsc, wac, sc, from, message)
+}
+
+func sendThanks(dsc ds.Client, wac whatsapp.Client, sc slack.Client, from string, message string) error {
+
 	template, count, url, audience, err := getReportDetails(message)
 	if err != nil {
 		return err
 	}
 
-	return sendThanksToAudience(dsc, wac, sc, from, template, count, url, audience)
+	if audience == AudienceMe {
+		return sendThanksToCaller(dsc, wac, sc, template, from, url, count)
+	}
+	return sendThanksToAllVolunteers(dsc, wac, sc, template, from, url, count)
 }
 
-func sendThanksToAudience(dsc ds.Client, wac whatsapp.Client, sc slack.Client,
-	from, template, count, url, audience string) error {
+func sendThanksToAllVolunteers(dsc ds.Client, wac whatsapp.Client, sc slack.Client,
+	template, from, url, count string) error {
 
-	if audience == AudienceMe {
-		err := wac.SendThanksTemplate(template, from, url, []string{count})
-		if err != nil {
-			sc.Debug(err.Error())
-			return err
-		}
-	} else { // send to volunteers
-		demonstration, err := ds.GetKaplanDemonstration(dsc)
-		if err != nil {
-			return err
-		}
+	demonstration, err := ds.GetKaplanDemonstration(dsc)
+	if err != nil {
+		return err
+	}
 
-		participantIdToPhone, err := getParticipants(dsc, sc, demonstration.Id)
-		if err != nil {
-			return err
-		}
+	participantIdToPhone, err := getParticipants(dsc, sc, demonstration.Id)
+	if err != nil {
+		return err
+	}
 
-		var errs error
-		for _, currPhone := range participantIdToPhone {
-			err = wac.SendThanksTemplate(template, currPhone, url, []string{count})
-			if err != nil {
-				errs = errors.Join(errs, err)
-			}
+	var errs error
+	for _, currPhone := range participantIdToPhone {
+		err = wac.SendThanksTemplate(template, currPhone, url, []string{count})
+		if err != nil {
+			errs = errors.Join(errs, err)
 		}
-		if errs != nil {
-			return errs
-		}
+	}
+	if errs != nil {
+		return errs
+	}
+
+	return nil
+}
+
+func sendThanksToCaller(dsc ds.Client, wac whatsapp.Client, sc slack.Client,
+	template, from, url, count string) error {
+
+	err := wac.SendThanksTemplate(template, from, url, []string{count})
+	if err != nil {
+		sc.Debug(err.Error())
+		return err
 	}
 
 	return nil
