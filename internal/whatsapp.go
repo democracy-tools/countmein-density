@@ -38,6 +38,11 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	_ = forward(h.sc, payload)
+	h.bot(payload)
+	w.WriteHeader(http.StatusAccepted)
+}
+
+func (h *Handle) bot(payload whatsapp.WebhookMessage) {
 
 	if len(payload.Entry) == 1 && len(payload.Entry[0].Changes) == 1 {
 		change := payload.Entry[0].Changes[0]
