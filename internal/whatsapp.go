@@ -37,7 +37,7 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	forward(h.sc, payload)
+	_ = forward(h.sc, payload)
 
 	if len(payload.Entry) == 1 && len(payload.Entry[0].Changes) == 1 {
 		change := payload.Entry[0].Changes[0]
