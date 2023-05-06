@@ -39,7 +39,6 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 
 	_ = forward(h.sc, payload)
 	h.bot(payload)
-	w.WriteHeader(http.StatusAccepted)
 }
 
 func (h *Handle) bot(payload whatsapp.WebhookMessage) {
