@@ -53,12 +53,13 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 						h.sc.Debug(fmt.Sprintf("Failed to add user %s (%s) with %d", contact.Profile.Name, contact.WaID, code))
 					}
 				} else if isReportRequest(message.Text.Body) {
-					err := report(h.dsc, h.wac, h.sc, contact.WaID, message.Text.Body)
-					if err != nil {
-						h.sc.Debug(fmt.Sprintf("%s failed to send report %s with %v", contact.WaID, message.Text.Body, err))
-					} else {
-						h.sc.Debug(fmt.Sprintf("%s sent report %s", contact.WaID, message.Text.Body))
-					}
+					logrus.Info("temp")
+					// err := Report(h.dsc, h.wac, h.sc, contact.WaID, message.Text.Body)
+					// if err != nil {
+					// 	h.sc.Debug(fmt.Sprintf("%s failed to send report %s with %v", contact.WaID, message.Text.Body, err))
+					// } else {
+					// 	h.sc.Debug(fmt.Sprintf("%s sent report %s", contact.WaID, message.Text.Body))
+					// }
 				}
 			} else if message.Type == whatsapp.TypeButton {
 				if isJoinRequestButton(message.Button.Text) {
@@ -76,7 +77,7 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	w.WriteHeader(http.StatusAccepted)
+	w.WriteHeader(http.StatusOK)
 }
 
 func forward(sc slack.Client, payload whatsapp.WebhookMessage) error {

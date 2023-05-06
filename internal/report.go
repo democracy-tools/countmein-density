@@ -16,18 +16,17 @@ const (
 	AudienceMe  = "me"
 )
 
-// Send thanks to volunteers
-func report(dsc ds.Client, wac whatsapp.Client, sc slack.Client, from string, message string) error {
+func Report(dsc ds.Client, wac whatsapp.Client, sc slack.Client, from string, message string) error {
 
 	err := validateUserAdmin(dsc, from, message)
 	if err != nil {
 		return err
 	}
 
-	return sendThanks(dsc, wac, sc, from, message)
+	return report(dsc, wac, sc, from, message)
 }
 
-func sendThanks(dsc ds.Client, wac whatsapp.Client, sc slack.Client, from string, message string) error {
+func report(dsc ds.Client, wac whatsapp.Client, sc slack.Client, from string, message string) error {
 
 	template, count, url, audience, err := getReportDetails(message)
 	if err != nil {
@@ -35,12 +34,12 @@ func sendThanks(dsc ds.Client, wac whatsapp.Client, sc slack.Client, from string
 	}
 
 	if audience == AudienceMe {
-		return sendThanksToCaller(dsc, wac, sc, template, from, url, count)
+		return sendReport(wac, []string{from}, template, url, count)
 	}
-	return sendThanksToAllVolunteers(dsc, wac, sc, template, from, url, count)
+	return sendReportToAllVolunteers(dsc, wac, sc, template, from, url, count)
 }
 
-func sendThanksToAllVolunteers(dsc ds.Client, wac whatsapp.Client, sc slack.Client,
+func sendReportToAllVolunteers(dsc ds.Client, wac whatsapp.Client, sc slack.Client,
 	template, from, url, count string) error {
 
 	demonstration, err := ds.GetKaplanDemonstration(dsc)
@@ -53,9 +52,14 @@ func sendThanksToAllVolunteers(dsc ds.Client, wac whatsapp.Client, sc slack.Clie
 		return err
 	}
 
+	return sendReport(wac, getPhones(participantIdToPhone), template, url, count)
+}
+
+func sendReport(wac whatsapp.Client, phones []string, template string, url string, count string) error {
+
 	var errs error
-	for _, currPhone := range participantIdToPhone {
-		err = wac.SendThanksTemplate(template, currPhone, url, []string{count})
+	for _, currPhone := range phones {
+		err := wac.SendThanksTemplate(template, currPhone, url, []string{count})
 		if err != nil {
 			errs = errors.Join(errs, err)
 		}
@@ -67,16 +71,14 @@ func sendThanksToAllVolunteers(dsc ds.Client, wac whatsapp.Client, sc slack.Clie
 	return nil
 }
 
-func sendThanksToCaller(dsc ds.Client, wac whatsapp.Client, sc slack.Client,
-	template, from, url, count string) error {
+func getPhones(participantIdToPhone map[string]string) []string {
 
-	err := wac.SendThanksTemplate(template, from, url, []string{count})
-	if err != nil {
-		sc.Debug(err.Error())
-		return err
+	var res []string
+	for _, currPhone := range participantIdToPhone {
+		res = append(res, currPhone)
 	}
 
-	return nil
+	return res
 }
 
 func validateUserAdmin(dsc ds.Client, from string, message string) error {
