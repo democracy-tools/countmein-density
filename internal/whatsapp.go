@@ -76,8 +76,6 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-
-	w.WriteHeader(http.StatusOK)
 }
 
 func forward(sc slack.Client, payload whatsapp.WebhookMessage) error {
