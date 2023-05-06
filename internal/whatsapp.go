@@ -55,9 +55,9 @@ func (h *Handle) WhatsAppEventHandler(w http.ResponseWriter, r *http.Request) {
 				} else if isReportRequest(message.Text.Body) {
 					err := report(h.dsc, h.wac, h.sc, contact.WaID, message.Text.Body)
 					if err != nil {
-						h.sc.Debug(fmt.Sprintf("Failed to send report %s with %v", message.Text.Body, err))
+						h.sc.Debug(fmt.Sprintf("%s failed to send report %s with %v", contact.WaID, message.Text.Body, err))
 					} else {
-						h.sc.Debug(fmt.Sprintf("Sent report %s", message.Text.Body))
+						h.sc.Debug(fmt.Sprintf("%s sent report %s", contact.WaID, message.Text.Body))
 					}
 				}
 			} else if message.Type == whatsapp.TypeButton {
