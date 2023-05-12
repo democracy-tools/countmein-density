@@ -1,6 +1,7 @@
 package ds
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/sirupsen/logrus"
@@ -33,6 +34,9 @@ func GetKaplanDemonstration(dsc Client) (*Demonstration, error) {
 	err := dsc.Get(KindDemonstration, DemonstrationKaplan, &demonstration)
 	if err != nil {
 		return nil, err
+	}
+	if demonstration.Id == "" || demonstration.Id == "na" {
+		return nil, errors.New("no active demonstration")
 	}
 
 	return &demonstration, nil
