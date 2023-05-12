@@ -57,13 +57,12 @@ func (h *Handle) bot(payload whatsapp.WebhookMessage) {
 						h.sc.Debug(fmt.Sprintf("Failed to add user %s (%s) with %d", contact.Profile.Name, contact.WaID, code))
 					}
 				} else if isReportRequest(message.Text.Body) {
-					logrus.Info("temp")
-					// err := Report(h.dsc, h.wac, h.sc, contact.WaID, message.Text.Body)
-					// if err != nil {
-					// 	h.sc.Debug(fmt.Sprintf("%s failed to send report %s with %v", contact.WaID, message.Text.Body, err))
-					// } else {
-					// 	h.sc.Debug(fmt.Sprintf("%s sent report %s", contact.WaID, message.Text.Body))
-					// }
+					err := Report(h.dsc, h.wac, h.sc, contact.WaID, message.Text.Body)
+					if err != nil {
+						h.sc.Debug(fmt.Sprintf("%s failed to send report %s with %v", contact.WaID, message.Text.Body, err))
+					} else {
+						h.sc.Debug(fmt.Sprintf("%s sent report %s", contact.WaID, message.Text.Body))
+					}
 				}
 			} else if message.Type == whatsapp.TypeButton {
 				if isJoinRequestButton(message.Button.Text) {
