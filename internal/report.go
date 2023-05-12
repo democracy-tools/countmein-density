@@ -11,10 +11,19 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	AudienceAll = "all"
-	AudienceMe  = "me"
-)
+func ReportRequest(message []string) bool {
+
+	return len(message) == 2 && strings.EqualFold(message[0], "thanks1")
+}
+
+func ReportRequestWithShare(message []string) bool {
+
+	return len(message) == 3 &&
+		strings.HasPrefix(message[2], "https://") &&
+		(strings.EqualFold(message[0], "thanks4") ||
+			strings.EqualFold(message[0], "thanks5") ||
+			strings.EqualFold(message[0], "thanks6"))
+}
 
 func Report(dsc ds.Client, wac whatsapp.Client, sc slack.Client, from string, message string) error {
 
@@ -28,14 +37,11 @@ func Report(dsc ds.Client, wac whatsapp.Client, sc slack.Client, from string, me
 
 func report(dsc ds.Client, wac whatsapp.Client, sc slack.Client, from string, message string) error {
 
-	template, count, url, audience, err := getReportDetails(message)
+	template, count, url, err := getReportDetails(message)
 	if err != nil {
 		return err
 	}
 
-	if audience == AudienceMe {
-		return sendReport(wac, []string{from}, template, url, count)
-	}
 	return sendReportToAllVolunteers(dsc, wac, sc, template, from, url, count)
 }
 
@@ -96,28 +102,19 @@ func validateUserAdmin(dsc ds.Client, from string, message string) error {
 	return nil
 }
 
-func getReportDetails(message string) (string, string, string, string, error) {
+func getReportDetails(message string) (string, string, string, error) {
 
 	split := strings.Split(message, " ")
-	if (len(split) == 3 || len(split) == 4) && strings.HasPrefix(split[2], "https://") {
-		template := strings.ToLower(split[0])
-		if template == "thanks1" || template == "thanks4" ||
-			template == "thanks5" || template == "thanks6" {
-			return template, split[1], split[2], getAudience(split), nil
-		}
+	if ReportRequest(split) {
+		return strings.ToLower(split[0]), split[1], "", nil
+	}
+	if ReportRequestWithShare(split) {
+		return strings.ToLower(split[0]), split[1], split[2], nil
 	}
 
 	err := fmt.Errorf("invalid report message '%s'", message)
 	logrus.Error(err.Error())
-	return "", "", "", "", err
-}
-
-func getAudience(message []string) string {
-
-	if len(message) == 4 && message[3] == AudienceMe {
-		return AudienceMe
-	}
-	return AudienceAll
+	return "", "", "", err
 }
 
 func getParticipants(dsc ds.Client, sc slack.Client, demonstration string) (map[string]string, error) {
