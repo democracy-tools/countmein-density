@@ -2,6 +2,8 @@ package ds
 
 import "fmt"
 
+const RoleAdmin = "admin"
+
 type Demonstration struct {
 	Id   string `json:"id" datastore:"id"`
 	Name string `json:"name" datastore:"name"`

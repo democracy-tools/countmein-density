@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strings"
 
+	"github.com/democracy-tools/countmein-density/internal/action"
 	whatsapp "github.com/democracy-tools/countmein-density/internal/whatsapp"
 	"github.com/democracy-tools/go-common/slack"
 	"github.com/sirupsen/logrus"
@@ -46,35 +46,13 @@ func (h *Handle) bot(payload whatsapp.WebhookMessage) {
 	if len(payload.Entry) == 1 && len(payload.Entry[0].Changes) == 1 {
 		change := payload.Entry[0].Changes[0]
 		if len(change.Value.Messages) == 1 && len(change.Value.Contacts) == 1 {
-			contact := change.Value.Contacts[0]
-			message := change.Value.Messages[0]
-			if message.Type == whatsapp.TypeText {
-				if isRegisterRequest(message.Text.Body) {
-					code := createUser(h.dsc, h.wac, contact.WaID, contact.Profile.Name, "")
-					if code == http.StatusCreated {
-						h.sc.Info(fmt.Sprintf("User added: %s (%s)", contact.Profile.Name, contact.WaID))
-					} else {
-						h.sc.Debug(fmt.Sprintf("Failed to add user %s (%s) with %d", contact.Profile.Name, contact.WaID, code))
-					}
-				} else if isReportRequest(message.Text.Body) {
-					err := Report(h.dsc, h.wac, h.sc, contact.WaID, message.Text.Body)
-					if err != nil {
-						h.sc.Debug(fmt.Sprintf("%s failed to send report %s with %v", contact.WaID, message.Text.Body, err))
-					} else {
-						h.sc.Debug(fmt.Sprintf("%s sent report %s", contact.WaID, message.Text.Body))
-					}
-				}
-			} else if message.Type == whatsapp.TypeButton {
-				if isJoinRequestButton(message.Button.Text) {
-					err := h.Join(contact.WaID)
-					if err != nil {
-						h.sc.Debug(fmt.Sprintf("User %s (%s) failed to join demonstration with %v", contact.Profile.Name, contact.WaID, err))
-					}
-				} else if isJoinNotThisTimeButton(message.Button.Text) {
-					err := h.wac.SendRegretInvitationTemplate(contact.WaID)
-					if err != nil {
-						h.sc.Debug(fmt.Sprintf("Failed to send regret invitation to %s (%s) with %v", contact.Profile.Name, contact.WaID, err))
-					}
+			request := action.Create(h.dsc, h.wac, change.Value.Contacts[0], change.Value.Messages[0])
+			if request != nil {
+				message, err := request.Run()
+				if err != nil {
+					h.sc.Debug(err.Error())
+				} else if message != "" {
+					h.sc.Info(message)
 				}
 			}
 		}
@@ -126,27 +104,4 @@ func buildMessage(message whatsapp.WebhookMessage) ([]byte, error) {
 		return nil, err
 	}
 	return pretty, nil
-}
-
-func isRegisterRequest(message string) bool {
-
-	message = strings.ReplaceAll(message, " ", "")
-	return strings.EqualFold(message, "join") || message == "קפלן" ||
-		message == "אנירוצהלהתנדבבספירתהמפגיניםבקפלן"
-}
-
-func isReportRequest(message string) bool {
-
-	split := strings.Split(message, " ")
-	return ReportRequest(split) || ReportRequestWithShare(split)
-}
-
-func isJoinRequestButton(message string) bool {
-
-	return message == "כן, אני בעניין" || message == "להצטרפות"
-}
-
-func isJoinNotThisTimeButton(message string) bool {
-
-	return message == "לא הפעם"
 }
