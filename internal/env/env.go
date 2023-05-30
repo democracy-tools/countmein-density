@@ -45,9 +45,9 @@ func GetWhatAppToken() string {
 	return failIfEmpty("WHATSAPP_TOKEN")
 }
 
-func GetWhatsAppFromPhone() string {
+func GetWhatsAppMessagesUrl() string {
 
-	return failIfEmpty("WHATSAPP_FROM_PHONE")
+	return failIfEmpty("WHATSAPP_MESSAGES_URL")
 }
 
 func GetSlackInfoUrl() string {

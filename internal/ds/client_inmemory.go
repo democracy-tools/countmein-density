@@ -1,5 +1,9 @@
 package ds
 
+import (
+	"reflect"
+)
+
 type InMemoryClient struct {
 	getFilterDelegate func(kind Kind, filters []FilterField, dst interface{}) error
 }
@@ -11,7 +15,17 @@ func NewInMemoryClient() Client {
 	}}
 }
 
-func (c *InMemoryClient) Get(kind Kind, id string, dst interface{}) error { return nil }
+func (c *InMemoryClient) Get(kind Kind, id string, dst interface{}) error {
+
+	if kind == KindDemonstration {
+		reflect.ValueOf(dst).Elem().Set(reflect.ValueOf(Demonstration{
+			Id:   "test-123",
+			Name: id,
+		}))
+	}
+
+	return nil
+}
 
 func (c *InMemoryClient) GetAll(kind Kind, dst interface{}) error { return nil }
 

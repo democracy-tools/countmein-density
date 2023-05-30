@@ -73,7 +73,7 @@ func IsAdmin(dsc Client, phone string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	if user.Role == "admin" {
+	if user.Role == RoleAdmin {
 		return true, nil
 	}
 

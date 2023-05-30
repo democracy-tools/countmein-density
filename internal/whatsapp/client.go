@@ -24,13 +24,13 @@ type Client interface {
 
 type ClientWrapper struct {
 	auth string
-	from string
+	url  string
 }
 
 func NewClientWrapper() Client {
 	return &ClientWrapper{
 		auth: fmt.Sprintf("Bearer %s", env.GetWhatAppToken()),
-		from: env.GetWhatsAppFromPhone(),
+		url:  env.GetWhatsAppMessagesUrl(),
 	}
 }
 
@@ -44,7 +44,7 @@ func (c *ClientWrapper) SendOnboardingTemplate(to string, userId string) error {
 		return err
 	}
 
-	return send(c.from, to, &buf, c.auth)
+	return send(c.url, to, &buf, c.auth)
 }
 
 func (c *ClientWrapper) SendInvitationTemplate(to string) error {
@@ -57,7 +57,7 @@ func (c *ClientWrapper) SendInvitationTemplate(to string) error {
 		return err
 	}
 
-	return send(c.from, to, &buf, c.auth)
+	return send(c.url, to, &buf, c.auth)
 }
 
 func (c *ClientWrapper) SendRegretInvitationTemplate(to string) error {
@@ -70,7 +70,7 @@ func (c *ClientWrapper) SendRegretInvitationTemplate(to string) error {
 		return err
 	}
 
-	return send(c.from, to, &buf, c.auth)
+	return send(c.url, to, &buf, c.auth)
 }
 
 func (c *ClientWrapper) SendDemonstrationTemplate(to string, userId string) error {
@@ -83,7 +83,7 @@ func (c *ClientWrapper) SendDemonstrationTemplate(to string, userId string) erro
 		return err
 	}
 
-	return send(c.from, to, &buf, c.auth)
+	return send(c.url, to, &buf, c.auth)
 }
 
 func (c *ClientWrapper) SendThanksTemplate(template string, to string, buttonUrlParam string, bodyTextParams []string) error {
@@ -96,7 +96,7 @@ func (c *ClientWrapper) SendThanksTemplate(template string, to string, buttonUrl
 		return err
 	}
 
-	return send(c.from, to, &buf, c.auth)
+	return send(c.url, to, &buf, c.auth)
 }
 
 func (c *ClientWrapper) SendBodyParamsTemplate(template string, to string, params []string) error {
@@ -109,7 +109,7 @@ func (c *ClientWrapper) SendBodyParamsTemplate(template string, to string, param
 		return err
 	}
 
-	return send(c.from, to, &buf, c.auth)
+	return send(c.url, to, &buf, c.auth)
 }
 
 func (c *ClientWrapper) Send(to string, message string) error {
@@ -131,12 +131,12 @@ func (c *ClientWrapper) Send(to string, message string) error {
 		return err
 	}
 
-	return send(c.from, to, &buf, c.auth)
+	return send(c.url, to, &buf, c.auth)
 }
 
-func send(from string, to string, body io.Reader, auth string) error {
+func send(url string, to string, body io.Reader, auth string) error {
 
-	r, err := http.NewRequest(http.MethodPost, getMessageUrl(from), body)
+	r, err := http.NewRequest(http.MethodPost, url, body)
 	if err != nil {
 		logrus.Errorf("failed to create HTTP request for sending a whatsapp message to '%s' with '%v'", to, err)
 		return err
@@ -200,9 +200,4 @@ func newTemplate(name string, to string, buttonUrlParam string, bodyTextParams [
 	}
 
 	return res
-}
-
-func getMessageUrl(from string) string {
-
-	return fmt.Sprintf("https://graph.facebook.com/v16.0/%s/messages", from)
 }

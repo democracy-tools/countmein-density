@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/democracy-tools/countmein-density/internal/action"
 	"github.com/democracy-tools/countmein-density/internal/ds"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -68,7 +69,7 @@ func (h *Handle) ChangePolygon(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	availablePolygons, err := getAvailablePolygons(h.dsc, demonstration.Id)
+	availablePolygons, err := action.GetAvailablePolygons(h.dsc, demonstration.Id)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

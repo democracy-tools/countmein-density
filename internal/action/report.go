@@ -1,4 +1,4 @@
-package internal
+package action
 
 import (
 	"errors"
@@ -6,46 +6,51 @@ import (
 	"strings"
 
 	"github.com/democracy-tools/countmein-density/internal/ds"
-	whatsapp "github.com/democracy-tools/countmein-density/internal/whatsapp"
-	"github.com/democracy-tools/go-common/slack"
+	"github.com/democracy-tools/countmein-density/internal/whatsapp"
 	"github.com/sirupsen/logrus"
 )
 
-func ReportRequest(message []string) bool {
-
-	return len(message) == 2 && strings.EqualFold(message[0], "thanks1")
+type Report struct {
+	dsc     ds.Client
+	wac     whatsapp.Client
+	from    string
+	message string
 }
 
-func ReportRequestWithShare(message []string) bool {
+func NewReport(dsc ds.Client, wac whatsapp.Client, phone string, message string) Request {
 
-	return len(message) == 3 &&
-		strings.HasPrefix(message[2], "https://") &&
-		(strings.EqualFold(message[0], "thanks4") ||
-			strings.EqualFold(message[0], "thanks5") ||
-			strings.EqualFold(message[0], "thanks6"))
+	return &Report{
+		dsc:     dsc,
+		wac:     wac,
+		from:    phone,
+		message: message,
+	}
 }
 
-func Report(dsc ds.Client, wac whatsapp.Client, sc slack.Client, from string, message string) error {
+func (a *Report) Run() (string, error) {
+
+	if err := report(a.dsc, a.wac, a.from, a.message); err != nil {
+		return "", fmt.Errorf("%s failed to send report %s with %v", a.from, a.message, err)
+	}
+	return fmt.Sprintf("%s sent report %s", a.from, a.message), nil
+}
+
+func report(dsc ds.Client, wac whatsapp.Client, from string, message string) error {
 
 	err := validateUserAdmin(dsc, from, message)
 	if err != nil {
 		return err
 	}
 
-	return report(dsc, wac, sc, from, message)
-}
-
-func report(dsc ds.Client, wac whatsapp.Client, sc slack.Client, from string, message string) error {
-
 	template, count, url, err := getReportDetails(message)
 	if err != nil {
 		return err
 	}
 
-	return sendReportToAllVolunteers(dsc, wac, sc, template, from, url, count)
+	return sendReportToAllVolunteers(dsc, wac, template, from, url, count)
 }
 
-func sendReportToAllVolunteers(dsc ds.Client, wac whatsapp.Client, sc slack.Client,
+func sendReportToAllVolunteers(dsc ds.Client, wac whatsapp.Client,
 	template, from, url, count string) error {
 
 	demonstration, err := ds.GetKaplanDemonstration(dsc)
@@ -53,7 +58,7 @@ func sendReportToAllVolunteers(dsc ds.Client, wac whatsapp.Client, sc slack.Clie
 		return err
 	}
 
-	participantIdToPhone, err := getParticipants(dsc, sc, demonstration.Id)
+	participantIdToPhone, err := getParticipants(dsc, demonstration.Id)
 	if err != nil {
 		return err
 	}
@@ -94,7 +99,7 @@ func validateUserAdmin(dsc ds.Client, from string, message string) error {
 		return err
 	}
 	if !ok {
-		err = fmt.Errorf("user '%s' is not authorized to send report '%s'", from, message)
+		err = fmt.Errorf("user '%s' is not authorized to send a report '%s'", from, message)
 		logrus.Info(err.Error())
 		return err
 	}
@@ -105,10 +110,10 @@ func validateUserAdmin(dsc ds.Client, from string, message string) error {
 func getReportDetails(message string) (string, string, string, error) {
 
 	split := strings.Split(message, " ")
-	if ReportRequest(split) {
+	if isPublishCountOnly(split) {
 		return strings.ToLower(split[0]), split[1], "", nil
 	}
-	if ReportRequestWithShare(split) {
+	if isPublishCountWithShare(split) {
 		return strings.ToLower(split[0]), split[1], split[2], nil
 	}
 
@@ -117,7 +122,7 @@ func getReportDetails(message string) (string, string, string, error) {
 	return "", "", "", err
 }
 
-func getParticipants(dsc ds.Client, sc slack.Client, demonstration string) (map[string]string, error) {
+func getParticipants(dsc ds.Client, demonstration string) (map[string]string, error) {
 
 	// *** datastore does not support join and group-by ***
 
@@ -147,9 +152,7 @@ func getParticipants(dsc ds.Client, sc slack.Client, demonstration string) (map[
 		if ok {
 			participantIdToPhone[currVolunteer.UserId] = currPhone
 		} else {
-			msg := fmt.Sprintf("user '%s' sent observation '%+v', but did not found in datastore user entity", currVolunteer.UserId, currVolunteer)
-			logrus.Error(msg)
-			sc.Debug(msg)
+			logrus.Error(fmt.Sprintf("user '%s' sent observation '%+v', but did not found in datastore user entity", currVolunteer.UserId, currVolunteer))
 		}
 	}
 
